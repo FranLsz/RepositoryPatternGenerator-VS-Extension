@@ -5,15 +5,9 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Globalization;
 using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -112,13 +106,13 @@ namespace RepositoryPatternGenerator
             
             if (project != null)
             {
-                var iRepository = project.AddDocument("IRepository", "<html></html>");
+                var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository);
                 var res = workspace.TryApplyChanges(iRepository.Project.Solution);
 
                 solution = workspace.CurrentSolution;
                 project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-                var iView = project.AddDocument("IViewModel", "<html></html>");
+                var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel);
                 var res2 =  workspace.TryApplyChanges(iView.Project.Solution);
 
 
