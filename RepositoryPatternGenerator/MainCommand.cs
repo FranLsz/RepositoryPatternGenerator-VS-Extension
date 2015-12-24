@@ -5,8 +5,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -39,6 +46,9 @@ namespace RepositoryPatternGenerator
         /// <param name="package">Owner package, not null.</param>
         private MainCommand(Package package)
         {
+
+
+
             if (package == null)
             {
                 throw new ArgumentNullException("package");
@@ -91,19 +101,66 @@ namespace RepositoryPatternGenerator
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private async void MenuItemCallback(object sender, EventArgs e)
         {
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
+            IComponentModel componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
+            var workspace = componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
+
+            var solution = workspace.CurrentSolution;
+            var project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+
+            
+            if (project != null)
+            {
+                var iRepository = project.AddDocument("IRepository", "<html></html>");
+                var res = workspace.TryApplyChanges(iRepository.Project.Solution);
+
+                solution = workspace.CurrentSolution;
+                project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+
+                var iView = project.AddDocument("IViewModel", "<html></html>");
+                var res2 =  workspace.TryApplyChanges(iView.Project.Solution);
+
+
+                var documents = project.Documents;
+
+                foreach (var d in documents.Where(d => d.Folders.Contains("Models")))
+                {
+                    var data = await d.GetSemanticModelAsync();
+                    var text = data.SyntaxTree.GetText();
+                }
+            }
+
+
             string title = "MainCommand";
 
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            string message = workspace.CurrentSolution.FilePath;
+
+            if (message != null)
+            {
+                // Show a message box to prove we were here
+                VsShellUtilities.ShowMessageBox(
+                    this.ServiceProvider,
+                    message,
+                    title,
+                    OLEMSGICON.OLEMSGICON_INFO,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
+            else
+            {
+                message = "First load a solution";
+                // Show a message box to prove we were here
+                VsShellUtilities.ShowMessageBox(
+                    this.ServiceProvider,
+                    message,
+                    title,
+                    OLEMSGICON.OLEMSGICON_WARNING,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
+
+
         }
     }
 }
