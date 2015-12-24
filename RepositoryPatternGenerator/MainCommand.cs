@@ -7,7 +7,9 @@
 using System;
 using System.ComponentModel.Design;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -97,23 +99,29 @@ namespace RepositoryPatternGenerator
         /// <param name="e">Event args.</param>
         private async void MenuItemCallback(object sender, EventArgs e)
         {
-            IComponentModel componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
-            var workspace = componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
+            var workspace = GetWorkspace();
+            Solution solution;
 
-            var solution = workspace.CurrentSolution;
+            GetCurrentSolution(out solution);
             var project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-            
             if (project != null)
             {
-                var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository);
-                var res = workspace.TryApplyChanges(iRepository.Project.Solution);
+                //si se llama igual que el nombre del proyecto y el de una carpeta, se debe especificar la raiz
+                var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository, new[] { "Repository", "Repository" });
+                workspace.TryApplyChanges(iRepository.Project.Solution);
 
-                solution = workspace.CurrentSolution;
+                GetCurrentSolution(out solution);
                 project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-                var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel);
-                var res2 =  workspace.TryApplyChanges(iView.Project.Solution);
+                var entityRepository = project.AddDocument("EntityRepository", CodeSnippets.EntityRepository, new[] { "Repository", "Repository" });
+                workspace.TryApplyChanges(entityRepository.Project.Solution);
+
+                GetCurrentSolution(out solution);
+                project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+
+                var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { "Repository", "ViewModel" });
+                workspace.TryApplyChanges(iView.Project.Solution);
 
 
                 var documents = project.Documents;
@@ -155,6 +163,17 @@ namespace RepositoryPatternGenerator
             }
 
 
+        }
+
+        private VisualStudioWorkspace GetWorkspace()
+        {
+            IComponentModel componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
+            return componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
+        }
+
+        private void GetCurrentSolution(out Solution solution)
+        {
+            solution = GetWorkspace().CurrentSolution;
         }
     }
 }
