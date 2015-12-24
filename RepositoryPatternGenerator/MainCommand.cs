@@ -126,7 +126,7 @@ namespace RepositoryPatternGenerator
 
 
                 var documents = project.Documents;
-                //s
+                //sx
                 foreach (var d in documents.Where(d => d.Folders.Contains("Models")))
                 {
                     var data = await d.GetSemanticModelAsync();
