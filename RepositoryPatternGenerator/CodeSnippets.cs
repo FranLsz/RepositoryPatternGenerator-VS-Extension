@@ -1,8 +1,55 @@
 ﻿
+using System.Collections.Generic;
+
 namespace RepositoryPatternGenerator
 {
     public class CodeSnippets
     {
+
+
+
+        public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, string[] keys)
+        {
+            var classViewModel =
+@"using Repository.Models;
+
+namespace Repository.ViewModel
+{
+    public class " + className + @"ViewModel : IViewModel<" + className + @">
+    {
+        public int id { get; set; }
+        public string nombre { get; set; }
+
+        public " + className + @" ToDataBase()
+        {
+            return new " + className + @"()
+            {
+                id = id,
+                nombre = nombre
+            };
+        }
+
+        public void FromDataBase(" + className + @" model)
+        {
+            id = model.id;
+            nombre = model.nombre;
+        }
+
+        public void UpdateDataBase(" + className + @" model)
+        {
+            model.id = id;
+            model.nombre = nombre;
+        }
+
+        public object[] GetKeys()
+        {
+            return new object[] { id };
+        }
+    }
+}";
+
+            return classViewModel;
+        }
         public static string IRepository =
 @"using System;
 using System.Collections.Generic;
@@ -34,7 +81,6 @@ namespace Repository.Repository
             object[] GetKeys();
         }
 }";
-
 
         public static string EntityRepository =
 @"using System;

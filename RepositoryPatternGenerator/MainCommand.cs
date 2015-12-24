@@ -5,6 +5,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -129,7 +130,20 @@ namespace RepositoryPatternGenerator
                 foreach (var d in documents.Where(d => d.Folders.Contains("Models")))
                 {
                     var data = await d.GetSemanticModelAsync();
-                    var text = data.SyntaxTree.GetText();
+                    var text = data.SyntaxTree.GetText().ToString();
+                    if (text.Contains("namespace Repository.Models") && !text.Contains("DbContext"))
+                    {
+                        var varAux = text.Substring(text.IndexOf("public partial class ") + 21, 100);
+                        var className = varAux.Substring(0, varAux.IndexOf("\r"));
+
+                        var code = CodeSnippets.GenerateClassViewModel(className, new Dictionary<string, string>(), new string[] { });
+
+                        GetCurrentSolution(out solution);
+                        project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+
+                        var vm = project.AddDocument(className+"ViewModel", code, new[] { "Repository", "ViewModel" });
+                        workspace.TryApplyChanges(vm.Project.Solution);
+                    }
                 }
             }
 
