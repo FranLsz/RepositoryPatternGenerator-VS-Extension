@@ -141,7 +141,7 @@ namespace RepositoryPatternGenerator
                         GetCurrentSolution(out solution);
                         project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-                        var vm = project.AddDocument(className+"ViewModel", code, new[] { "Repository", "ViewModel" });
+                        var vm = project.AddDocument(className + "ViewModel", code, new[] { "Repository", "ViewModel" });
                         workspace.TryApplyChanges(vm.Project.Solution);
                     }
                 }
