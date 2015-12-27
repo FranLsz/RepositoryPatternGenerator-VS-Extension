@@ -242,7 +242,7 @@
   <ItemGroup>
     <Content Include="Resources\MainCommand.png" />
     <Content Include="Resources\MainCommandPackage.ico" />
-    <Content Include="Resources\rpg.png" />
+    <Content Include="Resources\rpg_icon.png" />
     <Content Include="Resources\rpg_logo_200.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
