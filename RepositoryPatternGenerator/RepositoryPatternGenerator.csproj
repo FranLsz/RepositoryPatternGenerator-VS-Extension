@@ -243,11 +243,11 @@
     <Content Include="Resources\MainCommand.png" />
     <Content Include="Resources\MainCommandPackage.ico" />
     <Content Include="Resources\rpg.png" />
-    <Content Include="rpg_logo_200.png">
+    <Content Include="Resources\rpg_logo_200.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="rpg_logo_30.png">
+    <Content Include="Resources\rpg_logo_30.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
