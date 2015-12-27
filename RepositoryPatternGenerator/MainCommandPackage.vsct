@@ -35,20 +35,9 @@
          other menus or buttons (commands); from a visual point of view you can see the
          group as the part of a menu contained between two lines. The parent of a group
          must be a menu. -->
-    <Menus>
-      <Menu guid="guidMainCommandPackageCmdSet" id="TopLevelMenu" priority="0x700" type="Menu">
-        <Parent guid="guidSHLMainMenu"
-                id="IDG_VS_MM_TOOLSADDINS" />
-        <Strings>
-          <ButtonText>Repository Pattern Generator</ButtonText>
-          <CommandName>Repository Pattern Generator</CommandName>
-        </Strings>
-      </Menu>
-    </Menus>
-    
     <Groups>
       <Group guid="guidMainCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidMainCommandPackageCmdSet" id="TopLevelMenu"/>
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
       </Group>
     </Groups>
 
@@ -65,9 +54,9 @@
           If you do not want an image next to your command, remove the Icon node /> -->
       <Button guid="guidMainCommandPackageCmdSet" id="MainCommandId" priority="0x0100" type="Button">
         <Parent guid="guidMainCommandPackageCmdSet" id="MyMenuGroup" />
-        <!--<Icon guid="guidImages" id="bmpPicX" />-->
+        <Icon guid="guidLogo" id="logo" />
         <Strings>
-          <ButtonText>Generate</ButtonText>
+          <ButtonText>Generate repository pattern</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -80,7 +69,9 @@
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
       <Bitmap guid="guidImages" href="Resources\MainCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="guidLogo" href="Resources\rpg.png" usedList="logo"/>
     </Bitmaps>
+
   </Commands>
 
   <Symbols>
@@ -91,7 +82,6 @@
     <GuidSymbol name="guidMainCommandPackageCmdSet" value="{481c8da0-264a-4e10-af21-64a81ccb6dde}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="MainCommandId" value="0x0100" />
-      <IDSymbol name="TopLevelMenu" value="0x1021"/>
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{36c5e256-2654-4e8c-837b-2a0714420163}" >
@@ -101,6 +91,9 @@
       <IDSymbol name="bmpPicX" value="4" />
       <IDSymbol name="bmpPicArrows" value="5" />
       <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+    <GuidSymbol name="guidLogo" value="{9CE31064-E0BC-4AD1-8A26-B3766EB54936}" >
+      <IDSymbol name="logo" value="1" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

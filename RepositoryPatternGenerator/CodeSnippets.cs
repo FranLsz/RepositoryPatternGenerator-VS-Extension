@@ -5,9 +5,6 @@ namespace RepositoryPatternGenerator
 {
     public class CodeSnippets
     {
-
-
-
         public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, string[] keys)
         {
             var classViewModel =
