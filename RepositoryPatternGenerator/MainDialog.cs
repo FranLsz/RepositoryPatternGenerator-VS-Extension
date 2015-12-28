@@ -33,10 +33,14 @@ namespace RepositoryPatternGenerator
         private async void GenerateBtn_Click(object sender, EventArgs e)
         {
             GenerateBtn.Visible = false;
+            SettingsBtn.Visible = false;
             LogBox.Visible = true;
             ProgressBar.Visible = true;
             LogBox.Text = "";
             LogBox.AppendLine("---RPG process start---");
+
+            var repositoryName = SettingsRepositoryName.Text;
+            var modelsName = SettingsModelsName.Text;
 
             LogBox.AppendLine(GetHour() + " - Trying to get workspace");
             var workspace = GetWorkspace();
@@ -54,7 +58,7 @@ namespace RepositoryPatternGenerator
             {
                 LogBox.AppendLine(GetHour() + " - Solution successfully loaded", Color.Green);
                 LogBox.AppendLine(GetHour() + " - Trying to get the repository project");
-                var project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+                var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                 if (project == null)
                     LogBox.AppendLine(GetHour() + " - Project not found, ensure that you have a project named 'Repository' in the current solution", Color.Red);
@@ -78,6 +82,9 @@ namespace RepositoryPatternGenerator
 
 
                         LogBox.AppendLine(GetHour() + " - Trying to generate root folders and interfaces");
+
+                        CodeSnippets.RepositoryName = repositoryName;
+                        CodeSnippets.ModelsName = modelsName;
 
 
                         var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository,
@@ -110,7 +117,7 @@ namespace RepositoryPatternGenerator
                             GetCurrentSolution(out solution);
 
                             var documents = solution.Projects.FirstOrDefault(o => o.Name == "Repository").Documents; ;
-                            var modelsDocument = documents.Where(d => d.Folders.Contains("Models"));
+                            var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
                             if (!modelsDocument.Any())
                             {
                                 LogBox.AppendLine(
@@ -180,7 +187,7 @@ namespace RepositoryPatternGenerator
                                 }
                                 ProgressBar.Value = 100;
                                 LogBox.AppendLine(GetHour() + " - All files and folders generated successfully", Color.Green);
-                                LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm can fail :)", Color.Orange);
+                                LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :)", Color.Orange);
                                 LogBox.AppendLine("---RPG process end---");
                             }
 
@@ -216,6 +223,70 @@ namespace RepositoryPatternGenerator
         private void ExitBtn_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void TwitterLink_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://twitter.com/franlsz95");
+        }
+
+        private void LinkedInLink_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://es.linkedin.com/in/francisco-lópez-sánchez-326907100");
+        }
+
+        private void GitHubLink_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/FranLsz");
+        }
+
+        private void SettingsBtn_Click(object sender, EventArgs e)
+        {
+            GoBackBtn.Visible = true;
+            SettingsPanel.Visible = true;
+            RepositoryTree.ExpandAll();
+        }
+
+        private void GoBackBtn_Click(object sender, EventArgs e)
+        {
+            GoBackBtn.Visible = false;
+            SettingsPanel.Visible = false;
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void SelectParents(TreeNode node, Boolean isChecked)
+        {
+            var parent = node.Parent;
+
+            if (parent == null)
+                return;
+
+            if (!isChecked && HasCheckedNode(parent))
+                return;
+
+            parent.Checked = isChecked;
+            SelectParents(parent, isChecked);
+        }
+
+        private bool HasCheckedNode(TreeNode node)
+        {
+            return node.Nodes.Cast<TreeNode>().Any(n => n.Checked);
+        }
+        private void RepositoryTree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            // The code only executes if the user caused the checked state to change.
+            if (e.Action != TreeViewAction.Unknown)
+            {
+                if (e.Node.Nodes.Count > 0)
+                {
+                    /* Calls the CheckAllChildNodes method, passing in the current 
+                    Checked value of the TreeNode whose checked state changed. */
+                    this.SelectParents(e.Node, e.Node.Checked);
+                }
+            }
         }
     }
 }

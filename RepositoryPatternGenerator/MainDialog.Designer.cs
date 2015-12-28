@@ -29,25 +29,66 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainDialog));
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            System.Windows.Forms.TreeNode treeNode34 = new System.Windows.Forms.TreeNode("IRepository (interface)");
+            System.Windows.Forms.TreeNode treeNode35 = new System.Windows.Forms.TreeNode("EntityRepository (class)");
+            System.Windows.Forms.TreeNode treeNode36 = new System.Windows.Forms.TreeNode("Repository (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode34,
+            treeNode35});
+            System.Windows.Forms.TreeNode treeNode37 = new System.Windows.Forms.TreeNode("IViewModel (interface)");
+            System.Windows.Forms.TreeNode treeNode38 = new System.Windows.Forms.TreeNode("Model1ViewModel (class)");
+            System.Windows.Forms.TreeNode treeNode39 = new System.Windows.Forms.TreeNode("Model2ViewModel (class)");
+            System.Windows.Forms.TreeNode treeNode40 = new System.Windows.Forms.TreeNode("ViewModel (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode37,
+            treeNode38,
+            treeNode39});
+            System.Windows.Forms.TreeNode treeNode41 = new System.Windows.Forms.TreeNode("Model1");
+            System.Windows.Forms.TreeNode treeNode42 = new System.Windows.Forms.TreeNode("Model2");
+            System.Windows.Forms.TreeNode treeNode43 = new System.Windows.Forms.TreeNode("Models (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode41,
+            treeNode42});
+            System.Windows.Forms.TreeNode treeNode44 = new System.Windows.Forms.TreeNode("Repository project", new System.Windows.Forms.TreeNode[] {
+            treeNode36,
+            treeNode40,
+            treeNode43});
+            this.Logo = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.GenerateBtn = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LogBox = new System.Windows.Forms.RichTextBox();
             this.ExitBtn = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.TwitterLink = new System.Windows.Forms.PictureBox();
+            this.LinkedInLink = new System.Windows.Forms.PictureBox();
+            this.GitHubLink = new System.Windows.Forms.PictureBox();
+            this.SettingsBtn = new System.Windows.Forms.PictureBox();
+            this.SettingsPanel = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.RepositoryTree = new System.Windows.Forms.TreeView();
+            this.label4 = new System.Windows.Forms.Label();
+            this.SettingsModelsName = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.SettingsRepositoryName = new System.Windows.Forms.TextBox();
+            this.SettingsLabel = new System.Windows.Forms.Label();
+            this.GoBackBtn = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TwitterLink)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LinkedInLink)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GitHubLink)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SettingsBtn)).BeginInit();
+            this.SettingsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GoBackBtn)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // Logo
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(323, -20);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(200, 200);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.Logo.Image = ((System.Drawing.Image)(resources.GetObject("Logo.Image")));
+            this.Logo.Location = new System.Drawing.Point(323, -20);
+            this.Logo.Name = "Logo";
+            this.Logo.Size = new System.Drawing.Size(200, 200);
+            this.Logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.Logo.TabIndex = 0;
+            this.Logo.TabStop = false;
             // 
             // label1
             // 
@@ -63,19 +104,20 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Kozuka Gothic Pro R", 11F);
-            this.label2.Location = new System.Drawing.Point(319, 197);
+            this.label2.Location = new System.Drawing.Point(240, 197);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(195, 20);
+            this.label2.Size = new System.Drawing.Size(366, 20);
             this.label2.TabIndex = 2;
-            this.label2.Text = "By Francisco López Sánchez";
+            this.label2.Text = "Developed and designed by Francisco López Sánchez";
             // 
             // GenerateBtn
             // 
             this.GenerateBtn.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.GenerateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.GenerateBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.GenerateBtn.Font = new System.Drawing.Font("Kozuka Gothic Pro R", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GenerateBtn.ForeColor = System.Drawing.Color.White;
-            this.GenerateBtn.Location = new System.Drawing.Point(314, 303);
+            this.GenerateBtn.Location = new System.Drawing.Point(323, 315);
             this.GenerateBtn.Name = "GenerateBtn";
             this.GenerateBtn.Size = new System.Drawing.Size(200, 86);
             this.GenerateBtn.TabIndex = 3;
@@ -85,7 +127,7 @@
             // 
             // ProgressBar
             // 
-            this.ProgressBar.Location = new System.Drawing.Point(323, 385);
+            this.ProgressBar.Location = new System.Drawing.Point(339, 426);
             this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(175, 23);
             this.ProgressBar.Step = 1;
@@ -95,11 +137,11 @@
             // LogBox
             // 
             this.LogBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.LogBox.Location = new System.Drawing.Point(198, 233);
+            this.LogBox.Location = new System.Drawing.Point(206, 233);
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
             this.LogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(436, 131);
+            this.LogBox.Size = new System.Drawing.Size(436, 187);
             this.LogBox.TabIndex = 6;
             this.LogBox.Text = "";
             this.LogBox.Visible = false;
@@ -108,10 +150,11 @@
             // ExitBtn
             // 
             this.ExitBtn.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.ExitBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.ExitBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ExitBtn.Font = new System.Drawing.Font("Kozuka Gothic Pro R", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ExitBtn.ForeColor = System.Drawing.Color.White;
-            this.ExitBtn.Location = new System.Drawing.Point(341, 426);
+            this.ExitBtn.Location = new System.Drawing.Point(348, 455);
             this.ExitBtn.Name = "ExitBtn";
             this.ExitBtn.Size = new System.Drawing.Size(140, 38);
             this.ExitBtn.TabIndex = 7;
@@ -120,36 +163,248 @@
             this.ExitBtn.Visible = false;
             this.ExitBtn.Click += new System.EventHandler(this.ExitBtn_Click);
             // 
+            // TwitterLink
+            // 
+            this.TwitterLink.AccessibleDescription = "Twitter";
+            this.TwitterLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.TwitterLink.Image = ((System.Drawing.Image)(resources.GetObject("TwitterLink.Image")));
+            this.TwitterLink.Location = new System.Drawing.Point(308, 516);
+            this.TwitterLink.Name = "TwitterLink";
+            this.TwitterLink.Size = new System.Drawing.Size(71, 57);
+            this.TwitterLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.TwitterLink.TabIndex = 8;
+            this.TwitterLink.TabStop = false;
+            this.TwitterLink.Click += new System.EventHandler(this.TwitterLink_Click);
+            // 
+            // LinkedInLink
+            // 
+            this.LinkedInLink.AccessibleDescription = "LinkedIn";
+            this.LinkedInLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.LinkedInLink.Image = ((System.Drawing.Image)(resources.GetObject("LinkedInLink.Image")));
+            this.LinkedInLink.Location = new System.Drawing.Point(385, 516);
+            this.LinkedInLink.Name = "LinkedInLink";
+            this.LinkedInLink.Size = new System.Drawing.Size(72, 57);
+            this.LinkedInLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.LinkedInLink.TabIndex = 9;
+            this.LinkedInLink.TabStop = false;
+            this.LinkedInLink.Click += new System.EventHandler(this.LinkedInLink_Click);
+            // 
+            // GitHubLink
+            // 
+            this.GitHubLink.AccessibleDescription = "GitHub";
+            this.GitHubLink.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.GitHubLink.Image = ((System.Drawing.Image)(resources.GetObject("GitHubLink.Image")));
+            this.GitHubLink.Location = new System.Drawing.Point(463, 516);
+            this.GitHubLink.Name = "GitHubLink";
+            this.GitHubLink.Size = new System.Drawing.Size(72, 57);
+            this.GitHubLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.GitHubLink.TabIndex = 10;
+            this.GitHubLink.TabStop = false;
+            this.GitHubLink.Click += new System.EventHandler(this.GitHubLink_Click);
+            // 
+            // SettingsBtn
+            // 
+            this.SettingsBtn.AccessibleDescription = "Settings";
+            this.SettingsBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.SettingsBtn.Image = ((System.Drawing.Image)(resources.GetObject("SettingsBtn.Image")));
+            this.SettingsBtn.Location = new System.Drawing.Point(769, 12);
+            this.SettingsBtn.Name = "SettingsBtn";
+            this.SettingsBtn.Size = new System.Drawing.Size(46, 38);
+            this.SettingsBtn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.SettingsBtn.TabIndex = 11;
+            this.SettingsBtn.TabStop = false;
+            this.SettingsBtn.Click += new System.EventHandler(this.SettingsBtn_Click);
+            // 
+            // SettingsPanel
+            // 
+            this.SettingsPanel.Controls.Add(this.label5);
+            this.SettingsPanel.Controls.Add(this.label7);
+            this.SettingsPanel.Controls.Add(this.RepositoryTree);
+            this.SettingsPanel.Controls.Add(this.label4);
+            this.SettingsPanel.Controls.Add(this.SettingsModelsName);
+            this.SettingsPanel.Controls.Add(this.label3);
+            this.SettingsPanel.Controls.Add(this.SettingsRepositoryName);
+            this.SettingsPanel.Controls.Add(this.SettingsLabel);
+            this.SettingsPanel.Location = new System.Drawing.Point(33, 220);
+            this.SettingsPanel.Name = "SettingsPanel";
+            this.SettingsPanel.Size = new System.Drawing.Size(782, 290);
+            this.SettingsPanel.TabIndex = 12;
+            this.SettingsPanel.Visible = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 259);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(156, 13);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "*Left blank to set default values";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(615, 31);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(73, 13);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "Final structure";
+            // 
+            // RepositoryTree
+            // 
+            this.RepositoryTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.RepositoryTree.Location = new System.Drawing.Point(546, 56);
+            this.RepositoryTree.Name = "RepositoryTree";
+            treeNode34.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode34.Name = "IRepository";
+            treeNode34.Text = "IRepository (interface)";
+            treeNode35.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode35.Name = "EntityRepository";
+            treeNode35.Text = "EntityRepository (class)";
+            treeNode36.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode36.Name = "Repository";
+            treeNode36.Text = "Repository (folder)";
+            treeNode37.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode37.Name = "IViewModel";
+            treeNode37.Text = "IViewModel (interface)";
+            treeNode38.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode38.Name = "ModelViewModel";
+            treeNode38.Text = "Model1ViewModel (class)";
+            treeNode39.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode39.Name = "Node7";
+            treeNode39.Text = "Model2ViewModel (class)";
+            treeNode40.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode40.Name = "ViewModel";
+            treeNode40.Text = "ViewModel (folder)";
+            treeNode41.Name = "Model1";
+            treeNode41.Text = "Model1";
+            treeNode42.Name = "Model2";
+            treeNode42.Text = "Model2";
+            treeNode43.Name = "Models";
+            treeNode43.Text = "Models (folder)";
+            treeNode44.Name = "Repository_project";
+            treeNode44.Text = "Repository project";
+            this.RepositoryTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode44});
+            this.RepositoryTree.ShowPlusMinus = false;
+            this.RepositoryTree.Size = new System.Drawing.Size(214, 187);
+            this.RepositoryTree.TabIndex = 9;
+            this.RepositoryTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.RepositoryTree_AfterCheck);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(16, 98);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(128, 13);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Entity Models folder name";
+            // 
+            // SettingsModelsName
+            // 
+            this.SettingsModelsName.Location = new System.Drawing.Point(150, 95);
+            this.SettingsModelsName.Name = "SettingsModelsName";
+            this.SettingsModelsName.Size = new System.Drawing.Size(100, 20);
+            this.SettingsModelsName.TabIndex = 7;
+            this.SettingsModelsName.Text = "Models";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(16, 72);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(121, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Repository project name";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
+            // 
+            // SettingsRepositoryName
+            // 
+            this.SettingsRepositoryName.Location = new System.Drawing.Point(150, 69);
+            this.SettingsRepositoryName.Name = "SettingsRepositoryName";
+            this.SettingsRepositoryName.Size = new System.Drawing.Size(100, 20);
+            this.SettingsRepositoryName.TabIndex = 5;
+            this.SettingsRepositoryName.Text = "Repository";
+            // 
+            // SettingsLabel
+            // 
+            this.SettingsLabel.AutoSize = true;
+            this.SettingsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.SettingsLabel.Location = new System.Drawing.Point(349, 13);
+            this.SettingsLabel.Name = "SettingsLabel";
+            this.SettingsLabel.Size = new System.Drawing.Size(59, 17);
+            this.SettingsLabel.TabIndex = 4;
+            this.SettingsLabel.Text = "Settings";
+            // 
+            // GoBackBtn
+            // 
+            this.GoBackBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.GoBackBtn.Image = ((System.Drawing.Image)(resources.GetObject("GoBackBtn.Image")));
+            this.GoBackBtn.Location = new System.Drawing.Point(769, 12);
+            this.GoBackBtn.Name = "GoBackBtn";
+            this.GoBackBtn.Size = new System.Drawing.Size(46, 38);
+            this.GoBackBtn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.GoBackBtn.TabIndex = 13;
+            this.GoBackBtn.TabStop = false;
+            this.GoBackBtn.Visible = false;
+            this.GoBackBtn.Click += new System.EventHandler(this.GoBackBtn_Click);
+            // 
             // MainDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(827, 476);
+            this.ClientSize = new System.Drawing.Size(827, 585);
+            this.Controls.Add(this.SettingsPanel);
+            this.Controls.Add(this.GoBackBtn);
+            this.Controls.Add(this.SettingsBtn);
+            this.Controls.Add(this.GitHubLink);
+            this.Controls.Add(this.LinkedInLink);
+            this.Controls.Add(this.TwitterLink);
             this.Controls.Add(this.GenerateBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.Logo);
             this.Controls.Add(this.LogBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainDialog";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "RPG";
             this.Load += new System.EventHandler(this.MainDialog_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Logo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TwitterLink)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LinkedInLink)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GitHubLink)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SettingsBtn)).EndInit();
+            this.SettingsPanel.ResumeLayout(false);
+            this.SettingsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GoBackBtn)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox Logo;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button GenerateBtn;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.RichTextBox LogBox;
         private System.Windows.Forms.Button ExitBtn;
+        private System.Windows.Forms.PictureBox TwitterLink;
+        private System.Windows.Forms.PictureBox LinkedInLink;
+        private System.Windows.Forms.PictureBox GitHubLink;
+        private System.Windows.Forms.PictureBox SettingsBtn;
+        private System.Windows.Forms.PictureBox GoBackBtn;
+        private System.Windows.Forms.Label SettingsLabel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox SettingsRepositoryName;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox SettingsModelsName;
+        private System.Windows.Forms.TreeView RepositoryTree;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Panel SettingsPanel;
     }
 }

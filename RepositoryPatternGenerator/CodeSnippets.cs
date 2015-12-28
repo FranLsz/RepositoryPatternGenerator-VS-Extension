@@ -14,9 +14,11 @@ before that check if the tool selected the correct primary keys for each entity.
 
 Be free to modify this file.
 
-Extension author: Francisco López Sánchez
+Developed and designed by Francisco López Sánchez
 */
 ";
+        public static string RepositoryName = "Repository";
+        public static string ModelsName = "Models";
 
         public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, List<string> keys)
         {
@@ -49,11 +51,11 @@ Extension author: Francisco López Sánchez
             }
 
             var classViewModel =
-@""+_header+@"
-using Repository.Models;
+@"" + _header + @"
+using " + RepositoryName + "." + RepositoryName + @";
 using System;
 
-namespace Repository.ViewModel
+namespace " + RepositoryName + @".ViewModel
 {
     public class " + className + @"ViewModel : IViewModel<" + className + @">
     {
@@ -91,9 +93,9 @@ namespace Repository.ViewModel
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Repository.ViewModel;
+using " + RepositoryName + @".ViewModel;
 
-namespace Repository.Repository
+namespace " + RepositoryName + @".Repository
 {
     public interface IRepository<TModel, TViewModel> where TModel : class where TViewModel : IViewModel<TModel>
     {
@@ -109,7 +111,7 @@ namespace Repository.Repository
 
         public static string IViewModel =
 @"" + _header + @"
-namespace Repository.ViewModel
+namespace " + RepositoryName + @".ViewModel
 {
     public interface IViewModel<TModel> where TModel : class
         {
@@ -127,9 +129,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using Repository.ViewModel;
+using " + RepositoryName + @".ViewModel;
 
-namespace Repository.Repository
+namespace " + RepositoryName + @".Repository
 {
     public class EntityRepository<TModel, TViewModel> : IRepository<TModel, TViewModel> where TModel : class where TViewModel : IViewModel<TModel>, new()
     {
