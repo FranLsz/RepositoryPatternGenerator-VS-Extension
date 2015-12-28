@@ -15,7 +15,6 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using RepositoryPatternGenerator.Utils;
 
 namespace RepositoryPatternGenerator
 {
@@ -131,7 +130,7 @@ namespace RepositoryPatternGenerator
                     var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { "Repository", "ViewModel" });
                     workspace.TryApplyChanges(iView.Project.Solution);
                 }
-                catch (Exception exception)
+                catch (Exception)
                 {
                     VsShellUtilities.ShowMessageBox(
                     this.ServiceProvider,
