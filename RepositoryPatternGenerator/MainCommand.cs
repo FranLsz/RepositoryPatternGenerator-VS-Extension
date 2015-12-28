@@ -111,21 +111,36 @@ namespace RepositoryPatternGenerator
 
             if (project != null)
             {
-                //si se llama igual que el nombre del proyecto y el de una carpeta, se debe especificar la raiz
-                var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository, new[] { "Repository", "Repository" });
-                workspace.TryApplyChanges(iRepository.Project.Solution);
+                try
+                {
+                    //si se llama igual que el nombre del proyecto y el de una carpeta, se debe especificar la raiz
+                    var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository,
+                        new[] { "Repository", "Repository" });
+                    workspace.TryApplyChanges(iRepository.Project.Solution);
 
-                GetCurrentSolution(out solution);
-                project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+                    GetCurrentSolution(out solution);
+                    project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-                var entityRepository = project.AddDocument("EntityRepository", CodeSnippets.EntityRepository, new[] { "Repository", "Repository" });
-                workspace.TryApplyChanges(entityRepository.Project.Solution);
+                    var entityRepository = project.AddDocument("EntityRepository", CodeSnippets.EntityRepository,
+                        new[] { "Repository", "Repository" });
+                    workspace.TryApplyChanges(entityRepository.Project.Solution);
 
-                GetCurrentSolution(out solution);
-                project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+                    GetCurrentSolution(out solution);
+                    project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
 
-                var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { "Repository", "ViewModel" });
-                workspace.TryApplyChanges(iView.Project.Solution);
+                    var iView = project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { "Repository", "ViewModel" });
+                    workspace.TryApplyChanges(iView.Project.Solution);
+                }
+                catch (Exception exception)
+                {
+                    VsShellUtilities.ShowMessageBox(
+                    this.ServiceProvider,
+                    "Error on create files, check if you have already a folder named 'Repository' or 'ViewModel' and if they are empty",
+                    "Error",
+                    OLEMSGICON.OLEMSGICON_INFO,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                }
 
 
                 var documents = project.Documents;
@@ -137,7 +152,8 @@ namespace RepositoryPatternGenerator
 
                     if (text.Contains("namespace Repository.Models") && !text.Contains("DbContext"))
                     {
-                        var currentClass = data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+                        var currentClass =
+                            data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
                         var props = data.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
 
                         var className = currentClass.Identifier.Text;
@@ -154,7 +170,8 @@ namespace RepositoryPatternGenerator
                             propsList.Add(name, type);
 
                             //if is an id prop...
-                            if (name.Equals("Id", StringComparison.OrdinalIgnoreCase) || name.Equals("id" + className, StringComparison.OrdinalIgnoreCase))
+                            if (name.Equals("Id", StringComparison.OrdinalIgnoreCase) ||
+                                name.Equals("id" + className, StringComparison.OrdinalIgnoreCase))
                                 primaryKeys.Add(name);
                         }
 
@@ -166,7 +183,8 @@ namespace RepositoryPatternGenerator
                                 if (p.GetText().ToString().Contains("virtual")) continue;
                                 var name = p.Identifier.Text;
 
-                                if (name.ToLower().StartsWith("id", StringComparison.OrdinalIgnoreCase) && (name.Any(char.IsUpper) || name.Contains("_")))
+                                if (name.ToLower().StartsWith("id", StringComparison.OrdinalIgnoreCase) &&
+                                    (name.Any(char.IsUpper) || name.Contains("_")))
                                     primaryKeys.Add(name);
                             }
                         }
@@ -180,6 +198,16 @@ namespace RepositoryPatternGenerator
                         workspace.TryApplyChanges(vm.Project.Solution);
                     }
                 }
+            }
+            else
+            {
+                VsShellUtilities.ShowMessageBox(
+                    this.ServiceProvider,
+                    "Project named 'Repository' not found on the current solution",
+                    "Info",
+                    OLEMSGICON.OLEMSGICON_INFO,
+                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
 
 

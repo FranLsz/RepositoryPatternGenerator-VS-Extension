@@ -44,7 +44,6 @@ namespace Repository.ViewModel
 {
     public class " + className + @"ViewModel : IViewModel<" + className + @">
     {
-
 " + propsString + @"
 
         public " + className + @" ToDataBase()
