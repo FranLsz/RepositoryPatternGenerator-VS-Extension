@@ -55,6 +55,7 @@
     <Compile Include="MainCommand.cs" />
     <Compile Include="MainCommandPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\SyntaxNodeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />

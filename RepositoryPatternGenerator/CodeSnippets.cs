@@ -1,46 +1,73 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RepositoryPatternGenerator
 {
     public class CodeSnippets
     {
-        public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, string[] keys)
+        public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, List<string> keys)
         {
+            var propsString = "";
+            var toDataBaseString = "";
+            var fromDataBaseString = "";
+            var updateDataBaseString = "";
+            var keysString = "";
+
+            foreach (var p in properties.Select((Entry, Index) => new { Entry, Index }))
+            {
+                propsString += "        public " + p.Entry.Value + " " + p.Entry.Key + " { get; set; }";
+                fromDataBaseString += "            " + p.Entry.Key + " = model." + p.Entry.Key + ";";
+                updateDataBaseString += "            model." + p.Entry.Key + " = " + p.Entry.Key + ";";
+                toDataBaseString += "                " + p.Entry.Key + " = " + p.Entry.Key;
+                if (p.Index + 1 < properties.Count)
+                {
+                    propsString += "\n";
+                    toDataBaseString += ",\n";
+                    fromDataBaseString += "\n";
+                    updateDataBaseString += "\n";
+                }
+            }
+
+            foreach (var k in keys.Select((Entry, Index) => new { Entry, Index }))
+            {
+                keysString += k.Entry;
+                if (k.Index + 1 < keys.Count)
+                    keysString += ",";
+            }
+
             var classViewModel =
 @"using Repository.Models;
+using System;
 
 namespace Repository.ViewModel
 {
     public class " + className + @"ViewModel : IViewModel<" + className + @">
     {
-        public int id { get; set; }
-        public string nombre { get; set; }
+
+" + propsString + @"
 
         public " + className + @" ToDataBase()
         {
             return new " + className + @"()
             {
-                id = id,
-                nombre = nombre
+" + toDataBaseString + @"
             };
         }
 
         public void FromDataBase(" + className + @" model)
         {
-            id = model.id;
-            nombre = model.nombre;
+" + fromDataBaseString + @"
         }
 
         public void UpdateDataBase(" + className + @" model)
         {
-            model.id = id;
-            model.nombre = nombre;
+" + updateDataBaseString + @"
         }
 
         public object[] GetKeys()
         {
-            return new object[] { id };
+            return new object[] { " + keysString + @" };
         }
     }
 }";

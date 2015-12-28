@@ -9,10 +9,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using RepositoryPatternGenerator.Utils;
 
 namespace RepositoryPatternGenerator
 {
@@ -131,12 +134,44 @@ namespace RepositoryPatternGenerator
                 {
                     var data = await d.GetSemanticModelAsync();
                     var text = data.SyntaxTree.GetText().ToString();
+
                     if (text.Contains("namespace Repository.Models") && !text.Contains("DbContext"))
                     {
-                        var varAux = text.Substring(text.IndexOf("public partial class ") + 21, 100);
-                        var className = varAux.Substring(0, varAux.IndexOf("\r"));
+                        var currentClass = data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+                        var props = data.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
 
-                        var code = CodeSnippets.GenerateClassViewModel(className, new Dictionary<string, string>(), new string[] { });
+                        var className = currentClass.Identifier.Text;
+                        var propsList = new Dictionary<string, string>();
+                        var primaryKeys = new List<string>();
+                        foreach (var p in props)
+                        {
+                            // if inst a relation prop
+                            if (p.GetText().ToString().Contains("virtual")) continue;
+                            var name = p.Identifier.Text;
+                            var type = data.GetDeclaredSymbol(p).Type.Name;
+
+                            //add the name and type of the prop
+                            propsList.Add(name, type);
+
+                            //if is an id prop...
+                            if (name.Equals("Id", StringComparison.OrdinalIgnoreCase) || name.Equals("id" + className, StringComparison.OrdinalIgnoreCase))
+                                primaryKeys.Add(name);
+                        }
+
+                        // if the previus foreach doesnt add any key, the next loop add any key which contains the id keyword
+                        if (primaryKeys.Count.Equals(0))
+                        {
+                            foreach (var p in props)
+                            {
+                                if (p.GetText().ToString().Contains("virtual")) continue;
+                                var name = p.Identifier.Text;
+
+                                if (name.ToLower().StartsWith("id", StringComparison.OrdinalIgnoreCase) && (name.Any(char.IsUpper) || name.Contains("_")))
+                                    primaryKeys.Add(name);
+                            }
+                        }
+
+                        var code = CodeSnippets.GenerateClassViewModel(className, propsList, primaryKeys);
 
                         GetCurrentSolution(out solution);
                         project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
