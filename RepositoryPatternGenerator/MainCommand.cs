@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Threading;
+using System.Windows;
+using System.Windows.Forms.VisualStyles;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,6 +18,7 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace RepositoryPatternGenerator
 {
@@ -102,7 +106,16 @@ namespace RepositoryPatternGenerator
         /// <param name="e">Event args.</param>
         private async void MenuItemCallback(object sender, EventArgs e)
         {
+            var w = new MainDialog(this.ServiceProvider);
+            // Show the dialog. 
+            var m = w.ShowDialog();
+            w.Dispose();
+            /*
+
+           
+
             var workspace = GetWorkspace();
+
             Solution solution;
 
             GetCurrentSolution(out solution);
@@ -236,13 +249,15 @@ namespace RepositoryPatternGenerator
                     OLEMSGICON.OLEMSGICON_WARNING,
                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-            }
+            }*/
 
 
         }
 
+
         private VisualStudioWorkspace GetWorkspace()
         {
+
             IComponentModel componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
             return componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
         }
