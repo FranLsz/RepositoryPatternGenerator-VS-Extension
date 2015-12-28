@@ -29,27 +29,27 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainDialog));
-            System.Windows.Forms.TreeNode treeNode34 = new System.Windows.Forms.TreeNode("IRepository (interface)");
-            System.Windows.Forms.TreeNode treeNode35 = new System.Windows.Forms.TreeNode("EntityRepository (class)");
-            System.Windows.Forms.TreeNode treeNode36 = new System.Windows.Forms.TreeNode("Repository (folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode34,
-            treeNode35});
-            System.Windows.Forms.TreeNode treeNode37 = new System.Windows.Forms.TreeNode("IViewModel (interface)");
-            System.Windows.Forms.TreeNode treeNode38 = new System.Windows.Forms.TreeNode("Model1ViewModel (class)");
-            System.Windows.Forms.TreeNode treeNode39 = new System.Windows.Forms.TreeNode("Model2ViewModel (class)");
-            System.Windows.Forms.TreeNode treeNode40 = new System.Windows.Forms.TreeNode("ViewModel (folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode37,
-            treeNode38,
-            treeNode39});
-            System.Windows.Forms.TreeNode treeNode41 = new System.Windows.Forms.TreeNode("Model1");
-            System.Windows.Forms.TreeNode treeNode42 = new System.Windows.Forms.TreeNode("Model2");
-            System.Windows.Forms.TreeNode treeNode43 = new System.Windows.Forms.TreeNode("Models (folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode41,
-            treeNode42});
-            System.Windows.Forms.TreeNode treeNode44 = new System.Windows.Forms.TreeNode("Repository project", new System.Windows.Forms.TreeNode[] {
-            treeNode36,
-            treeNode40,
-            treeNode43});
+            System.Windows.Forms.TreeNode treeNode45 = new System.Windows.Forms.TreeNode("IRepository (interface)");
+            System.Windows.Forms.TreeNode treeNode46 = new System.Windows.Forms.TreeNode("EntityRepository (class)");
+            System.Windows.Forms.TreeNode treeNode47 = new System.Windows.Forms.TreeNode("Repository (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode45,
+            treeNode46});
+            System.Windows.Forms.TreeNode treeNode48 = new System.Windows.Forms.TreeNode("IViewModel (interface)");
+            System.Windows.Forms.TreeNode treeNode49 = new System.Windows.Forms.TreeNode("Model1ViewModel (class)");
+            System.Windows.Forms.TreeNode treeNode50 = new System.Windows.Forms.TreeNode("Model2ViewModel (class)");
+            System.Windows.Forms.TreeNode treeNode51 = new System.Windows.Forms.TreeNode("ViewModel (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode48,
+            treeNode49,
+            treeNode50});
+            System.Windows.Forms.TreeNode treeNode52 = new System.Windows.Forms.TreeNode("Model1");
+            System.Windows.Forms.TreeNode treeNode53 = new System.Windows.Forms.TreeNode("Model2");
+            System.Windows.Forms.TreeNode treeNode54 = new System.Windows.Forms.TreeNode("Models (folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode52,
+            treeNode53});
+            System.Windows.Forms.TreeNode treeNode55 = new System.Windows.Forms.TreeNode("Repository project", new System.Windows.Forms.TreeNode[] {
+            treeNode47,
+            treeNode51,
+            treeNode54});
             this.Logo = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -62,7 +62,6 @@
             this.GitHubLink = new System.Windows.Forms.PictureBox();
             this.SettingsBtn = new System.Windows.Forms.PictureBox();
             this.SettingsPanel = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.RepositoryTree = new System.Windows.Forms.TreeView();
             this.label4 = new System.Windows.Forms.Label();
@@ -217,7 +216,6 @@
             // 
             // SettingsPanel
             // 
-            this.SettingsPanel.Controls.Add(this.label5);
             this.SettingsPanel.Controls.Add(this.label7);
             this.SettingsPanel.Controls.Add(this.RepositoryTree);
             this.SettingsPanel.Controls.Add(this.label4);
@@ -230,15 +228,6 @@
             this.SettingsPanel.Size = new System.Drawing.Size(782, 290);
             this.SettingsPanel.TabIndex = 12;
             this.SettingsPanel.Visible = false;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(19, 259);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(156, 13);
-            this.label5.TabIndex = 15;
-            this.label5.Text = "*Left blank to set default values";
             // 
             // label7
             // 
@@ -254,37 +243,37 @@
             this.RepositoryTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.RepositoryTree.Location = new System.Drawing.Point(546, 56);
             this.RepositoryTree.Name = "RepositoryTree";
-            treeNode34.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode34.Name = "IRepository";
-            treeNode34.Text = "IRepository (interface)";
-            treeNode35.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode35.Name = "EntityRepository";
-            treeNode35.Text = "EntityRepository (class)";
-            treeNode36.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode36.Name = "Repository";
-            treeNode36.Text = "Repository (folder)";
-            treeNode37.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode37.Name = "IViewModel";
-            treeNode37.Text = "IViewModel (interface)";
-            treeNode38.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode38.Name = "ModelViewModel";
-            treeNode38.Text = "Model1ViewModel (class)";
-            treeNode39.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode39.Name = "Node7";
-            treeNode39.Text = "Model2ViewModel (class)";
-            treeNode40.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode40.Name = "ViewModel";
-            treeNode40.Text = "ViewModel (folder)";
-            treeNode41.Name = "Model1";
-            treeNode41.Text = "Model1";
-            treeNode42.Name = "Model2";
-            treeNode42.Text = "Model2";
-            treeNode43.Name = "Models";
-            treeNode43.Text = "Models (folder)";
-            treeNode44.Name = "Repository_project";
-            treeNode44.Text = "Repository project";
+            treeNode45.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode45.Name = "IRepository";
+            treeNode45.Text = "IRepository (interface)";
+            treeNode46.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode46.Name = "EntityRepository";
+            treeNode46.Text = "EntityRepository (class)";
+            treeNode47.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode47.Name = "Repository";
+            treeNode47.Text = "Repository (folder)";
+            treeNode48.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode48.Name = "IViewModel";
+            treeNode48.Text = "IViewModel (interface)";
+            treeNode49.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode49.Name = "ModelViewModel";
+            treeNode49.Text = "Model1ViewModel (class)";
+            treeNode50.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode50.Name = "Node7";
+            treeNode50.Text = "Model2ViewModel (class)";
+            treeNode51.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode51.Name = "ViewModel";
+            treeNode51.Text = "ViewModel (folder)";
+            treeNode52.Name = "Model1";
+            treeNode52.Text = "Model1";
+            treeNode53.Name = "Model2";
+            treeNode53.Text = "Model2";
+            treeNode54.Name = "Models";
+            treeNode54.Text = "Models (folder)";
+            treeNode55.Name = "Repository_project";
+            treeNode55.Text = "Repository project";
             this.RepositoryTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode44});
+            treeNode55});
             this.RepositoryTree.ShowPlusMinus = false;
             this.RepositoryTree.Size = new System.Drawing.Size(214, 187);
             this.RepositoryTree.TabIndex = 9;
@@ -404,7 +393,6 @@
         private System.Windows.Forms.TextBox SettingsModelsName;
         private System.Windows.Forms.TreeView RepositoryTree;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel SettingsPanel;
     }
 }

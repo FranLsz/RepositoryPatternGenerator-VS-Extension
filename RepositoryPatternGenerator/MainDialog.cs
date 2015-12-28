@@ -61,7 +61,10 @@ namespace RepositoryPatternGenerator
                 var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                 if (project == null)
-                    LogBox.AppendLine(GetHour() + " - Project not found, ensure that you have a project named 'Repository' in the current solution", Color.Red);
+                {
+                    LogBox.AppendLine(GetHour() + " - Project not found, ensure that you have a project named '" + repositoryName + "' in the current solution", Color.Red);
+                    ProgressBar.Value = 100;
+                }
                 else
                 {
                     LogBox.AppendLine(GetHour() + " - Project 'Repository' successfully loaded", Color.Green);
@@ -122,8 +125,8 @@ namespace RepositoryPatternGenerator
                             {
                                 LogBox.AppendLine(
                                     GetHour() +
-                                    " - The 'Models' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
-                                    Color.Orange);
+                                    " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                    Color.Red);
                                 ProgressBar.Value = 100;
                             }
                             else
