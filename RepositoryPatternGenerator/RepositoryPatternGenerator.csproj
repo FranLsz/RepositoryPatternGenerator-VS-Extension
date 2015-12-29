@@ -61,6 +61,7 @@
       <DependentUpon>MainDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Utils.cs" />
     <Compile Include="Utils\WinFormsExtensions.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -260,6 +261,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\logo\rpg_logo_16.ico" />
     <Content Include="Resources\MainCommand.png" />
     <Content Include="Resources\MainCommandPackage.ico" />
     <Content Include="Resources\rpg_icon.png" />
@@ -269,18 +271,6 @@
     <Content Include="Resources\social\rpg_linkedin_logo.png" />
     <Content Include="Resources\social\rpg_twitter_logo.png" />
     <Content Include="rpg_logo_200.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Resources\rpg_logo_30.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="rpg_logo_30.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="rpg_logo_40.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

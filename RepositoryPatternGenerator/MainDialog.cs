@@ -31,7 +31,7 @@ namespace RepositoryPatternGenerator
 
         private void MainDialog_Load(object sender, EventArgs e)
         {
-
+            LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
         }
 
         private async void GenerateBtn_Click(object sender, EventArgs e)
@@ -95,17 +95,17 @@ namespace RepositoryPatternGenerator
                         CodeSnippets.ModelsName = modelsName;
 
 
-                        var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository,
+                        var iRepository = project.AddDocument("IRepository", CodeSnippets.GetIRepository(),
                             new[] { repositoryName, "Repository" });
                         LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
 
 
-                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { repositoryName, "ViewModel" });
+                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModel" });
                         LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
 
 
                         LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
-                        var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.EntityRepository,
+                        var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.GetEntityRepository(),
                             new[] { repositoryName, "Repository" });
                         LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
 
