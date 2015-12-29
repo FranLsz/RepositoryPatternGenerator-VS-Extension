@@ -71,15 +71,6 @@
   <ItemGroup>
     <None Include="Key.snk" />
     <None Include="packages.config" />
-    <None Include="Resources\font\Raleway\Raleway-Bold.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-ExtraBold.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-ExtraLight.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-Heavy.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-Light.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-Medium.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-Regular.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-SemiBold.ttf" />
-    <None Include="Resources\font\Raleway\Raleway-Thin.ttf" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

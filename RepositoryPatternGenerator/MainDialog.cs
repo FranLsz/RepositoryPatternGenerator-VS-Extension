@@ -25,13 +25,13 @@ namespace RepositoryPatternGenerator
         public MainDialog(IServiceProvider svc)
         {
             ServiceProvider = svc;
-            
+
             InitializeComponent();
         }
 
         private void MainDialog_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         private async void GenerateBtn_Click(object sender, EventArgs e)
@@ -158,7 +158,17 @@ namespace RepositoryPatternGenerator
                                             // if inst a relation prop
                                             if (p.GetText().ToString().Contains("virtual")) continue;
                                             var name = p.Identifier.Text;
-                                            var type = data.GetDeclaredSymbol(p).Type.Name;
+                                            string type = "";
+                                            if (!p.GetText().ToString().Contains("Nullable"))
+                                            {
+                                                type = data.GetDeclaredSymbol(p).Type.Name;
+                                            }
+                                            else
+                                            {
+                                                var line = p.GetText().ToString();
+                                                var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
+                                                type = data.GetDeclaredSymbol(p).Type.Name + realType;
+                                            }
 
                                             //add the name and type of the prop
                                             propsList.Add(name, type);

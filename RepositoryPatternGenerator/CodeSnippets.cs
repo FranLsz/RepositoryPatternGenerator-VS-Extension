@@ -52,7 +52,7 @@ Developed and designed by Francisco López Sánchez
 
             var classViewModel =
 @"" + _header + @"
-using " + RepositoryName + "." + RepositoryName + @";
+using " + RepositoryName + "." + ModelsName + @";
 using System;
 
 namespace " + RepositoryName + @".ViewModel
