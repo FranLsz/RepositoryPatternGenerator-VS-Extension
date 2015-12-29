@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,18 +25,20 @@ namespace RepositoryPatternGenerator
         public MainDialog(IServiceProvider svc)
         {
             ServiceProvider = svc;
+            
             InitializeComponent();
         }
 
         private void MainDialog_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         private async void GenerateBtn_Click(object sender, EventArgs e)
         {
             GenerateBtn.Visible = false;
             SettingsBtn.Visible = false;
+            GoBackBtn.Visible = false;
             LogBox.Visible = true;
             ProgressBar.Visible = true;
             LogBox.Text = "";
@@ -245,14 +250,14 @@ namespace RepositoryPatternGenerator
 
         private void SettingsBtn_Click(object sender, EventArgs e)
         {
-            GoBackBtn.Visible = true;
+            SettingsBtn.Visible = false;
             SettingsPanel.Visible = true;
             RepositoryTree.ExpandAll();
         }
 
         private void GoBackBtn_Click(object sender, EventArgs e)
         {
-            GoBackBtn.Visible = false;
+            SettingsBtn.Visible = true;
             SettingsPanel.Visible = false;
         }
 
@@ -290,6 +295,16 @@ namespace RepositoryPatternGenerator
                     this.SelectParents(e.Node, e.Node.Checked);
                 }
             }
+        }
+
+        private void Header2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
