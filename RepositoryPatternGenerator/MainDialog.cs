@@ -96,17 +96,17 @@ namespace RepositoryPatternGenerator
 
 
                         var iRepository = project.AddDocument("IRepository", CodeSnippets.IRepository,
-                            new[] { "Repository", "Repository" });
+                            new[] { repositoryName, "Repository" });
                         LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
 
 
-                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { "Repository", "ViewModel" });
+                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.IViewModel, new[] { repositoryName, "ViewModel" });
                         LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
 
 
                         LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
                         var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.EntityRepository,
-                            new[] { "Repository", "Repository" });
+                            new[] { repositoryName, "Repository" });
                         LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
 
 
@@ -124,7 +124,7 @@ namespace RepositoryPatternGenerator
 
                             GetCurrentSolution(out solution);
 
-                            var documents = solution.Projects.FirstOrDefault(o => o.Name == "Repository").Documents; ;
+                            var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
                             var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
                             if (!modelsDocument.Any())
                             {
@@ -143,7 +143,7 @@ namespace RepositoryPatternGenerator
                                     var data = await d.GetSemanticModelAsync();
                                     var text = data.SyntaxTree.GetText().ToString();
 
-                                    if (text.Contains("namespace Repository.Models") && !text.Contains("DbContext"))
+                                    if (text.Contains($"namespace {repositoryName}.{modelsName}") && !text.Contains("DbContext"))
                                     {
 
                                         var currentClass =
@@ -196,9 +196,9 @@ namespace RepositoryPatternGenerator
                                         var code = CodeSnippets.GenerateClassViewModel(className, propsList, primaryKeys);
 
                                         GetCurrentSolution(out solution);
-                                        project = solution.Projects.FirstOrDefault(o => o.Name == "Repository");
+                                        project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
-                                        var vm = project.AddDocument(className + "ViewModel", code, new[] { "Repository", "ViewModel" });
+                                        var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModel" });
                                         workspace.TryApplyChanges(vm.Project.Solution);
                                         LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {primaryKeys.Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                     }
