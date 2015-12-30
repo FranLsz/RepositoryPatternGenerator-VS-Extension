@@ -1,6 +1,6 @@
 # Repository Pattern Generator (Visual Studio Extension)
-Extensión para generar el patrón repositorio a partir de un modelo de datos creado por Entity Framework.
+Generates repository pattern code from an EF6 data model.
 
-Disponible para Visual Studio 2015 Community/Pro/Enterprise (No testeado en las demás versiones)
+Available for Visual Studio 2015 Community/Pro/Enterprise (Not tested in other versions).
 
-Visual Studio Gallery link (Documentation): https://visualstudiogallery.msdn.microsoft.com/db555413-64cf-4dea-9cf4-739cd65d0ba4
+Documentation and Get Started: https://visualstudiogallery.msdn.microsoft.com/db555413-64cf-4dea-9cf4-739cd65d0ba4
