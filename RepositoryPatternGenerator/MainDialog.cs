@@ -31,6 +31,9 @@ namespace RepositoryPatternGenerator
 
         private void MainDialog_Load(object sender, EventArgs e)
         {
+            MaximizeBox = false;
+            MinimizeBox = false;
+            
             LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
         }
 
