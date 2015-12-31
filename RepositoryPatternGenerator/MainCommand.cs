@@ -111,13 +111,10 @@ namespace RepositoryPatternGenerator
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            
-
             var w = new MainDialog(this.ServiceProvider);
             // Show the dialog. 
             var m = w.ShowDialog();
             w.Dispose();
-
         }
         
 

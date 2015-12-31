@@ -141,9 +141,15 @@ namespace " + RepositoryName + @".Repository
 {
     public class EntityRepository<TModel, TViewModel> : IRepository<TModel, TViewModel> where TModel : class where TViewModel : IViewModel<TModel>, new()
     {
-        private readonly DbContext _context;
+        private DbContext _context;
 
-        protected DbSet<TModel> DbSet => _context.Set<TModel>();
+        protected virtual DbSet<TModel> DbSet
+        {
+            get
+            {
+                return _context.Set<TModel>();
+            }
+        }
 
         public EntityRepository(DbContext context)
         {
