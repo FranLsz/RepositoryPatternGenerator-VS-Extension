@@ -52,7 +52,7 @@ Developed and designed by Francisco López Sánchez.
 using " + RepositoryName + "." + ModelsName + @";
 using System;
 
-namespace " + RepositoryName + @".ViewModel
+namespace " + RepositoryName + @".ViewModels
 {
     public class " + className + @"ViewModel : IViewModel<" + className + @">
     {
@@ -91,7 +91,7 @@ namespace " + RepositoryName + @".ViewModel
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using " + RepositoryName + @".ViewModel;
+using " + RepositoryName + @".ViewModels;
 
 namespace " + RepositoryName + @".Repository
 {
@@ -111,7 +111,7 @@ namespace " + RepositoryName + @".Repository
         public static string GetIViewModel()
         {
             return @"" + _header + @"
-namespace " + RepositoryName + @".ViewModel
+namespace " + RepositoryName + @".ViewModels
 {
     public interface IViewModel<TModel> where TModel : class
         {
@@ -131,7 +131,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using " + RepositoryName + @".ViewModel;
+using " + RepositoryName + @".ViewModels;
 
 namespace " + RepositoryName + @".Repository
 {

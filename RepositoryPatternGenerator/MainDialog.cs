@@ -78,13 +78,13 @@ namespace RepositoryPatternGenerator
                 {
                     LogBox.AppendLine(GetHour() + " - Project 'Repository' successfully loaded", Color.Green);
 
-                    var docs = project.Documents.Where(d => d.Folders.Contains("ViewModel") || d.Folders.Contains("Repository"));
+                    var docs = project.Documents.Where(d => d.Folders.Contains("ViewModels") || d.Folders.Contains("Repository"));
 
                     if (docs.Any())
                     {
                         LogBox.AppendLine(
                             GetHour() +
-                            " - The project already have a folder named 'Repository' or 'ViewModel', please remove it before generate the repository pattern",
+                            " - The project already have a folder named 'Repository' or 'ViewModels', please remove it before generate the repository pattern",
                             Color.Red);
                         ProgressBar.Value = 100;
                     }
@@ -104,7 +104,7 @@ namespace RepositoryPatternGenerator
                         LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
 
 
-                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModel" });
+                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
                         LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
 
 
@@ -271,7 +271,7 @@ namespace RepositoryPatternGenerator
                                         GetCurrentSolution(out solution);
                                         project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
-                                        var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModel" });
+                                        var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModels" });
                                         workspace.TryApplyChanges(vm.Project.Solution);
                                         LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                     }
