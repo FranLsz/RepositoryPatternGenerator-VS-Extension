@@ -36,14 +36,14 @@
             treeNode2});
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("IViewModel (Interface)");
             System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Model1ViewModel (Class)");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Model2ViewModel (Cass)");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ViewModel (Folder)", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Model2ViewModel (Class)");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ViewModels (Folder)", new System.Windows.Forms.TreeNode[] {
             treeNode4,
             treeNode5,
             treeNode6});
             System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Model1");
             System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Model2");
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Models (folder)", new System.Windows.Forms.TreeNode[] {
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Models (Folder)", new System.Windows.Forms.TreeNode[] {
             treeNode8,
             treeNode9});
             System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Repository (Project)", new System.Windows.Forms.TreeNode[] {
@@ -335,16 +335,16 @@
             treeNode5.Text = "Model1ViewModel (Class)";
             treeNode6.ForeColor = System.Drawing.Color.Green;
             treeNode6.Name = "Node7";
-            treeNode6.Text = "Model2ViewModel (Cass)";
+            treeNode6.Text = "Model2ViewModel (Class)";
             treeNode7.ForeColor = System.Drawing.Color.Green;
             treeNode7.Name = "ViewModel";
-            treeNode7.Text = "ViewModel (Folder)";
+            treeNode7.Text = "ViewModels (Folder)";
             treeNode8.Name = "Model1";
             treeNode8.Text = "Model1";
             treeNode9.Name = "Model2";
             treeNode9.Text = "Model2";
             treeNode10.Name = "Models";
-            treeNode10.Text = "Models (folder)";
+            treeNode10.Text = "Models (Folder)";
             treeNode11.Name = "Repository_project";
             treeNode11.Text = "Repository (Project)";
             this.RepositoryTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
