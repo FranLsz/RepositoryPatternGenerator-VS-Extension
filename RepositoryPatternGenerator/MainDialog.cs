@@ -7,6 +7,7 @@ using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -33,7 +34,7 @@ namespace RepositoryPatternGenerator
         {
             MaximizeBox = false;
             MinimizeBox = false;
-            
+
             LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
         }
 
@@ -141,6 +142,91 @@ namespace RepositoryPatternGenerator
                             {
                                 ProgressBar.Value = 75;
                                 LogBox.AppendLine(GetHour() + " - Trying to generate ViewModels for each entity");
+
+                                //PRIMARY KEYS RASTREATOR
+                                var controlPkProp = new Dictionary<string, List<string>>();
+                                foreach (var d in modelsDocument)
+                                {
+                                    var sm = await d.GetSemanticModelAsync();
+                                    var smtext = sm.SyntaxTree.GetText().ToString();
+
+                                    if (!smtext.Contains($"namespace {repositoryName}.{modelsName}") ||
+                                        smtext.Contains("DbContext"))
+                                        continue;
+
+                                    var className =
+                                        sm.SyntaxTree.GetRoot()
+                                            .DescendantNodes()
+                                            .OfType<ClassDeclarationSyntax>()
+                                            .First()
+                                            .Identifier.Text;
+                                    var props =
+                                        sm.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
+
+                                    controlPkProp.Add(className, new List<string>());
+
+                                    // first round
+                                    foreach (var p in props)
+                                    {
+                                        if (p.GetText().ToString().Contains("virtual") || p.GetText().ToString().Contains("Nullable")) continue;
+                                        var name = p.Identifier.Text;
+
+                                        // class user
+                                        // if prop is id, iduser or userid or user_id
+                                        if (name.ToLower().Equals("id")
+                                            || name.ToLower().Equals("id_" + className.ToLower())
+                                            || name.ToLower().Equals("id" + className.ToLower())
+                                            || name.ToLower().Equals(className.ToLower() + "id")
+                                            || name.ToLower().Equals(className.ToLower() + "_id"))
+                                        {
+                                            controlPkProp[className].Add(name);
+                                        }
+                                        else
+                                        {
+                                            if (className.Length < 4) continue;
+                                            var noExit = true;
+                                            var i = 1;
+                                            while (noExit)
+                                            {
+                                                // remove plural chars (-i last letters)
+                                                var singleClassName = className.Remove(className.Length - i, i);
+                                                if (name.ToLower().Equals("id")
+                                                    || (name.ToLower()).StartsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                    || (name.ToLower()).StartsWith("id_") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                    || (name.ToLower()).EndsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                    || (name.ToLower()).EndsWith("_id") && (name.ToLower()).Contains(singleClassName.ToLower()))
+                                                {
+                                                    controlPkProp[className].Add(name);
+                                                    noExit = false;
+                                                }
+                                                if (i == 3)
+                                                    noExit = false;
+                                                i++;
+                                            }
+                                        }
+                                    }
+
+                                    // if no found any PK -> second round
+                                    if (!controlPkProp[className].Any())
+                                    {
+                                        // less stricted than first
+                                        foreach (var p in props)
+                                        {
+                                            if (p.GetText().ToString().Contains("virtual") || p.GetText().ToString().Contains("Nullable")) continue;
+                                            var name = p.Identifier.Text;
+                                            if ((name.ToLower().StartsWith("id")
+                                            || name.ToLower().EndsWith("id"))
+                                            &&
+                                            (name.Remove(0, 1).Any(char.IsUpper) || name.Contains("_")))
+                                                controlPkProp[className].Add(name);
+                                        }
+                                    }
+
+                                }
+                                //END PRIMARY KEYS RASTREATOR
+
+
+
                                 foreach (var d in modelsDocument)
                                 {
                                     var data = await d.GetSemanticModelAsync();
@@ -155,68 +241,50 @@ namespace RepositoryPatternGenerator
 
                                         var className = currentClass.Identifier.Text;
                                         var propsList = new Dictionary<string, string>();
-                                        var primaryKeys = new List<string>();
                                         foreach (var p in props)
                                         {
-                                            // if inst a relation prop
+                                            //"    \r\n        public string CustomerID { get; set; }\r\n"
+                                            // if is a relation prop, continue
                                             if (p.GetText().ToString().Contains("virtual")) continue;
+                                            var line = p.GetText().ToString();
                                             var name = p.Identifier.Text;
                                             string type = "";
-                                            if (!p.GetText().ToString().Contains("Nullable"))
-                                            {
-                                                type = data.GetDeclaredSymbol(p).Type.Name;
-                                            }
-                                            else
-                                            {
-                                                var line = p.GetText().ToString();
-                                                var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
-                                                type = data.GetDeclaredSymbol(p).Type.Name + realType;
-                                            }
+
+                                            /* if (!p.GetText().ToString().Contains("Nullable"))
+                                             {
+                                                 type = data.GetDeclaredSymbol(p).Type.Name;
+                                             }
+                                             else
+                                             {
+                                                 var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
+                                                 type = data.GetDeclaredSymbol(p).Type.Name + realType;
+                                             }*/
+
+                                            type = line.Substring(line.IndexOf("public ") + 7, line.IndexOf(" " + name) - line.IndexOf("public ") - 7);
 
                                             //add the name and type of the prop
                                             propsList.Add(name, type);
-
-                                            //if is an id prop...
-                                            if (name.Equals("Id", StringComparison.OrdinalIgnoreCase) ||
-                                                name.Equals("id" + className, StringComparison.OrdinalIgnoreCase))
-                                                primaryKeys.Add(name);
                                         }
 
-                                        // if the previus foreach doesnt add any key, the next loop add any key which contains the id keyword
-                                        if (primaryKeys.Count.Equals(0))
-                                        {
-                                            foreach (var p in props)
-                                            {
-                                                if (p.GetText().ToString().Contains("virtual")) continue;
-                                                var name = p.Identifier.Text;
-
-                                                if (name.ToLower().StartsWith("id", StringComparison.OrdinalIgnoreCase) &&
-                                                    (name.Any(char.IsUpper) || name.Contains("_")))
-                                                    primaryKeys.Add(name);
-                                            }
-                                        }
-
-                                        var code = CodeSnippets.GenerateClassViewModel(className, propsList, primaryKeys);
+                                        var code = CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
 
                                         GetCurrentSolution(out solution);
                                         project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                                         var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModel" });
                                         workspace.TryApplyChanges(vm.Project.Solution);
-                                        LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {primaryKeys.Aggregate((a, b) => a + ", " + b)}", Color.Green);
+                                        LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                     }
                                 }
                                 ProgressBar.Value = 100;
-                                LogBox.AppendLine(GetHour() + " - All files and folders generated successfully", Color.Green);
                                 LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :)", Color.Orange);
-                                LogBox.AppendLine("---RPG process end---");
+                                LogBox.AppendLine(GetHour() + " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                             }
-
                         }
                     }
                 }
             }
-
+            LogBox.AppendLine("---RPG process end---");
             ExitBtn.Visible = true;
         }
 
@@ -258,7 +326,7 @@ namespace RepositoryPatternGenerator
 
         private void GitHubLink_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/FranLsz");
+            System.Diagnostics.Process.Start("https://github.com/FranLsz/RepositoryPatternGenerator-VS-Extension");
         }
 
         private void SettingsBtn_Click(object sender, EventArgs e)
@@ -315,9 +383,5 @@ namespace RepositoryPatternGenerator
 
         }
 
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
