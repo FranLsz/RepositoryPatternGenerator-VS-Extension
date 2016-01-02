@@ -5,27 +5,13 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Threading;
-using System.Windows;
-using System.Windows.Forms.VisualStyles;
-using System.Xml;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using MessageBox = System.Windows.Forms.MessageBox;
 
-namespace RepositoryPatternGenerator
+namespace RepositoryPatternGenerator.MainCommand
 {
     /// <summary>
     /// Command handler
@@ -111,7 +97,7 @@ namespace RepositoryPatternGenerator
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            var w = new MainDialog(this.ServiceProvider);
+            var w = new MainDialog.MainDialog(this.ServiceProvider);
             // Show the dialog. 
             var m = w.ShowDialog();
             w.Dispose();

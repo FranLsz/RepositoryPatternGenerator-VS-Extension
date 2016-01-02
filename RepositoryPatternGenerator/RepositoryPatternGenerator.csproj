@@ -51,13 +51,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CodeSnippets.cs" />
-    <Compile Include="MainCommand.cs" />
-    <Compile Include="MainCommandPackage.cs" />
-    <Compile Include="MainDialog.cs">
+    <Compile Include="CodeSnippets\CodeSnippets.cs" />
+    <Compile Include="MainCommand\MainCommand.cs" />
+    <Compile Include="MainCommand\MainCommandPackage.cs" />
+    <Compile Include="MainDialog\MainDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainDialog.Designer.cs">
+    <Compile Include="MainDialog\MainDialog.Designer.cs">
       <DependentUpon>MainDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -244,13 +244,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="MainCommandPackage.vsct">
+    <VSCTCompile Include="MainCommand\MainCommandPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MainDialog.resx">
+    <EmbeddedResource Include="MainDialog\MainDialog.resx">
       <DependentUpon>MainDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
@@ -258,6 +258,7 @@
       <ManifestResourceName>VSPackage</ManifestResourceName>
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>VSPackage.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -265,15 +266,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Resources\logo\rpg_logo_16.ico" />
-    <Content Include="Resources\MainCommand.png" />
-    <Content Include="Resources\MainCommandPackage.ico" />
-    <Content Include="Resources\rpg_icon.png" />
-    <Content Include="Resources\ui\go_back.png" />
-    <Content Include="Resources\ui\settings.png" />
-    <Content Include="Resources\social\rpg_github_logo.png" />
-    <Content Include="Resources\social\rpg_linkedin_logo.png" />
-    <Content Include="Resources\social\rpg_twitter_logo.png" />
+    <Content Include="Resources\img\logo\rpg_logo_16.ico" />
+    <Content Include="Resources\img\ui\rpg_icon.png" />
+    <Content Include="Resources\img\ui\go_back.png" />
+    <Content Include="Resources\img\ui\settings.png" />
+    <Content Include="Resources\img\social\rpg_github_logo.png" />
+    <Content Include="Resources\img\social\rpg_linkedin_logo.png" />
+    <Content Include="Resources\img\social\rpg_twitter_logo.png" />
     <Content Include="rpg_logo_200.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>

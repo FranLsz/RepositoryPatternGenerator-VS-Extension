@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Text;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using RepositoryPatternGenerator.Utils;
 
-namespace RepositoryPatternGenerator
+namespace RepositoryPatternGenerator.MainDialog
 {
     public partial class MainDialog : Form
     {
@@ -95,21 +86,21 @@ namespace RepositoryPatternGenerator
                         {
                             LogBox.AppendLine(GetHour() + " - Trying to generate root folders and interfaces");
 
-                            CodeSnippets.RepositoryName = repositoryName;
-                            CodeSnippets.ModelsName = modelsName;
+                            CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
+                            CodeSnippets.CodeSnippets.ModelsName = modelsName;
 
 
-                            var iRepository = project.AddDocument("IRepository", CodeSnippets.GetIRepository(),
+                            var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
                                 new[] { repositoryName, "Repository" });
                             LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
 
 
-                            var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
+                            var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
                             LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
 
 
                             LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
-                            var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.GetEntityRepository(),
+                            var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
                                 new[] { repositoryName, "Repository" });
                             LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
 
@@ -266,7 +257,7 @@ namespace RepositoryPatternGenerator
                                                 propsList.Add(name, type);
                                             }
 
-                                            var code = CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
+                                            var code = CodeSnippets.CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
 
                                             GetCurrentSolution(out solution);
                                             project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
