@@ -102,7 +102,7 @@ namespace " + RepositoryName + @".Repository
         ICollection<TViewModel> Get(Expression<Func<TModel, bool>> expression);
         TViewModel Add(TViewModel model);
         int Update(TViewModel model);
-        int Delete(TViewModel model);
+        int Delete(params object[] keys);
         int Delete(Expression<Func<TModel, bool>> expression);
     }
 }";
@@ -137,7 +137,7 @@ namespace " + RepositoryName + @".Repository
 {
     public class EntityRepository<TModel, TViewModel> : IRepository<TModel, TViewModel> where TModel : class where TViewModel : IViewModel<TModel>, new()
     {
-        private DbContext _context;
+        private readonly DbContext _context;
 
         protected virtual DbSet<TModel> DbSet
         {
@@ -182,9 +182,9 @@ namespace " + RepositoryName + @".Repository
             }
         }
 
-        public virtual int Delete(TViewModel model)
+        public virtual int Delete(params object[] keys)
         {
-            var data = DbSet.Find(model.GetKeys());
+            var data = DbSet.Find(keys);
             DbSet.Remove(data);
             try
             {
