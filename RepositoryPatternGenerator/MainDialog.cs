@@ -91,195 +91,205 @@ namespace RepositoryPatternGenerator
                     else
                     {
 
-
-
-                        LogBox.AppendLine(GetHour() + " - Trying to generate root folders and interfaces");
-
-                        CodeSnippets.RepositoryName = repositoryName;
-                        CodeSnippets.ModelsName = modelsName;
-
-
-                        var iRepository = project.AddDocument("IRepository", CodeSnippets.GetIRepository(),
-                            new[] { repositoryName, "Repository" });
-                        LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
-
-
-                        var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
-                        LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
-
-
-                        LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
-                        var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.GetEntityRepository(),
-                            new[] { repositoryName, "Repository" });
-                        LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
-
-
-                        var applied = workspace.TryApplyChanges(entityRepository.Project.Solution);
-                        ProgressBar.Value = 50;
-                        if (!applied)
+                        try
                         {
-                            LogBox.AppendLine(GetHour() + " - Files cant be loaded on current solution", Color.Red);
-                            ProgressBar.Value = 100;
+                            LogBox.AppendLine(GetHour() + " - Trying to generate root folders and interfaces");
 
-                        }
-                        else
-                        {
-                            //LogBox.AppendLine(GetHour() + " - Changes loaded on current solution", Color.Green);
+                            CodeSnippets.RepositoryName = repositoryName;
+                            CodeSnippets.ModelsName = modelsName;
 
-                            GetCurrentSolution(out solution);
 
-                            var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
-                            var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
-                            if (!modelsDocument.Any())
+                            var iRepository = project.AddDocument("IRepository", CodeSnippets.GetIRepository(),
+                                new[] { repositoryName, "Repository" });
+                            LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
+
+
+                            var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
+                            LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
+
+
+                            LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
+                            var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.GetEntityRepository(),
+                                new[] { repositoryName, "Repository" });
+                            LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
+
+
+                            var applied = workspace.TryApplyChanges(entityRepository.Project.Solution);
+                            ProgressBar.Value = 50;
+                            if (!applied)
                             {
-                                LogBox.AppendLine(
-                                    GetHour() +
-                                    " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
-                                    Color.Red);
+                                LogBox.AppendLine(GetHour() + " - Files cant be loaded on current solution", Color.Red);
                                 ProgressBar.Value = 100;
+
                             }
                             else
                             {
-                                ProgressBar.Value = 75;
-                                LogBox.AppendLine(GetHour() + " - Trying to generate ViewModels for each entity");
+                                //LogBox.AppendLine(GetHour() + " - Changes loaded on current solution", Color.Green);
 
-                                //PRIMARY KEYS RASTREATOR
-                                var controlPkProp = new Dictionary<string, List<string>>();
-                                foreach (var d in modelsDocument)
+                                GetCurrentSolution(out solution);
+
+                                var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
+                                var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                                if (!modelsDocument.Any())
                                 {
-                                    var sm = await d.GetSemanticModelAsync();
-                                    var smtext = sm.SyntaxTree.GetText().ToString();
+                                    LogBox.AppendLine(
+                                        GetHour() +
+                                        " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                        Color.Red);
+                                    ProgressBar.Value = 100;
+                                }
+                                else
+                                {
+                                    ProgressBar.Value = 75;
+                                    LogBox.AppendLine(GetHour() + " - Trying to generate ViewModels for each entity");
 
-                                    if (!smtext.Contains($"namespace {repositoryName}.{modelsName}") ||
-                                        smtext.Contains("DbContext"))
-                                        continue;
-
-                                    var className =
-                                        sm.SyntaxTree.GetRoot()
-                                            .DescendantNodes()
-                                            .OfType<ClassDeclarationSyntax>()
-                                            .First()
-                                            .Identifier.Text;
-                                    var props =
-                                        sm.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-
-                                    controlPkProp.Add(className, new List<string>());
-
-                                    // first round
-                                    foreach (var p in props)
+                                    //PRIMARY KEYS RASTREATOR
+                                    var controlPkProp = new Dictionary<string, List<string>>();
+                                    foreach (var d in modelsDocument)
                                     {
-                                        if (p.GetText().ToString().Contains("virtual") || p.GetText().ToString().Contains("Nullable")) continue;
-                                        var name = p.Identifier.Text;
+                                        var sm = await d.GetSemanticModelAsync();
+                                        var smtext = sm.SyntaxTree.GetText().ToString();
 
-                                        // class user
-                                        // if prop is id, iduser or userid or user_id
-                                        if (name.ToLower().Equals("id")
-                                            || name.ToLower().Equals("id_" + className.ToLower())
-                                            || name.ToLower().Equals("id" + className.ToLower())
-                                            || name.ToLower().Equals(className.ToLower() + "id")
-                                            || name.ToLower().Equals(className.ToLower() + "_id"))
-                                        {
-                                            controlPkProp[className].Add(name);
-                                        }
-                                        else
-                                        {
-                                            if (className.Length < 4) continue;
-                                            var noExit = true;
-                                            var i = 1;
-                                            while (noExit)
-                                            {
-                                                // remove plural chars (-i last letters)
-                                                var singleClassName = className.Remove(className.Length - i, i);
-                                                if (name.ToLower().Equals("id")
-                                                    || (name.ToLower()).StartsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                    || (name.ToLower()).StartsWith("id_") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                    || (name.ToLower()).EndsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                    || (name.ToLower()).EndsWith("_id") && (name.ToLower()).Contains(singleClassName.ToLower()))
-                                                {
-                                                    controlPkProp[className].Add(name);
-                                                    noExit = false;
-                                                }
-                                                if (i == 3)
-                                                    noExit = false;
-                                                i++;
-                                            }
-                                        }
-                                    }
+                                        if (!smtext.Contains($"namespace {repositoryName}.{modelsName}") ||
+                                            smtext.Contains("DbContext"))
+                                            continue;
 
-                                    // if no found any PK -> second round
-                                    if (!controlPkProp[className].Any())
-                                    {
-                                        // less stricted than first
+                                        var className =
+                                            sm.SyntaxTree.GetRoot()
+                                                .DescendantNodes()
+                                                .OfType<ClassDeclarationSyntax>()
+                                                .First()
+                                                .Identifier.Text;
+                                        var props =
+                                            sm.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
+
+                                        controlPkProp.Add(className, new List<string>());
+
+                                        // first round
                                         foreach (var p in props)
                                         {
                                             if (p.GetText().ToString().Contains("virtual") || p.GetText().ToString().Contains("Nullable")) continue;
                                             var name = p.Identifier.Text;
-                                            if ((name.ToLower().StartsWith("id")
-                                            || name.ToLower().EndsWith("id"))
-                                            &&
-                                            (name.Remove(0, 1).Any(char.IsUpper) || name.Contains("_")))
+
+                                            // class user
+                                            // if prop is id, iduser or userid or user_id
+                                            if (name.ToLower().Equals("id")
+                                                || name.ToLower().Equals("id_" + className.ToLower())
+                                                || name.ToLower().Equals("id" + className.ToLower())
+                                                || name.ToLower().Equals(className.ToLower() + "id")
+                                                || name.ToLower().Equals(className.ToLower() + "_id"))
+                                            {
                                                 controlPkProp[className].Add(name);
+                                            }
+                                            else
+                                            {
+                                                if (className.Length < 4) continue;
+                                                var noExit = true;
+                                                var i = 1;
+                                                while (noExit)
+                                                {
+                                                    // remove plural chars (-i last letters)
+                                                    var singleClassName = className.Remove(className.Length - i, i);
+                                                    if (name.ToLower().Equals("id")
+                                                        || (name.ToLower()).StartsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                        || (name.ToLower()).StartsWith("id_") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                        || (name.ToLower()).EndsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
+                                                        || (name.ToLower()).EndsWith("_id") && (name.ToLower()).Contains(singleClassName.ToLower()))
+                                                    {
+                                                        controlPkProp[className].Add(name);
+                                                        noExit = false;
+                                                    }
+                                                    if (i == 3)
+                                                        noExit = false;
+                                                    i++;
+                                                }
+                                            }
                                         }
-                                    }
 
-                                }
-                                //END PRIMARY KEYS RASTREATOR
-
-
-
-                                foreach (var d in modelsDocument)
-                                {
-                                    var data = await d.GetSemanticModelAsync();
-                                    var text = data.SyntaxTree.GetText().ToString();
-
-                                    if (text.Contains($"namespace {repositoryName}.{modelsName}") && !text.Contains("DbContext"))
-                                    {
-
-                                        var currentClass =
-                                            data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-                                        var props = data.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-
-                                        var className = currentClass.Identifier.Text;
-                                        var propsList = new Dictionary<string, string>();
-                                        foreach (var p in props)
+                                        // if no found any PK -> second round
+                                        if (!controlPkProp[className].Any())
                                         {
-                                            //"    \r\n        public string CustomerID { get; set; }\r\n"
-                                            // if is a relation prop, continue
-                                            if (p.GetText().ToString().Contains("virtual")) continue;
-                                            var line = p.GetText().ToString();
-                                            var name = p.Identifier.Text;
-                                            string type = "";
-
-                                            /* if (!p.GetText().ToString().Contains("Nullable"))
-                                             {
-                                                 type = data.GetDeclaredSymbol(p).Type.Name;
-                                             }
-                                             else
-                                             {
-                                                 var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
-                                                 type = data.GetDeclaredSymbol(p).Type.Name + realType;
-                                             }*/
-
-                                            type = line.Substring(line.IndexOf("public ") + 7, line.IndexOf(" " + name) - line.IndexOf("public ") - 7);
-
-                                            //add the name and type of the prop
-                                            propsList.Add(name, type);
+                                            // less stricted than first
+                                            foreach (var p in props)
+                                            {
+                                                if (p.GetText().ToString().Contains("virtual") || p.GetText().ToString().Contains("Nullable")) continue;
+                                                var name = p.Identifier.Text;
+                                                if ((name.ToLower().StartsWith("id")
+                                                || name.ToLower().EndsWith("id"))
+                                                &&
+                                                (name.Remove(0, 1).Any(char.IsUpper) || name.Contains("_")))
+                                                    controlPkProp[className].Add(name);
+                                            }
                                         }
 
-                                        var code = CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
-
-                                        GetCurrentSolution(out solution);
-                                        project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
-
-                                        var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModels" });
-                                        workspace.TryApplyChanges(vm.Project.Solution);
-                                        LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                     }
+                                    //END PRIMARY KEYS RASTREATOR
+
+
+
+                                    foreach (var d in modelsDocument)
+                                    {
+                                        var data = await d.GetSemanticModelAsync();
+                                        var text = data.SyntaxTree.GetText().ToString();
+
+                                        if (text.Contains($"namespace {repositoryName}.{modelsName}") && !text.Contains("DbContext"))
+                                        {
+
+                                            var currentClass =
+                                                data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+                                            var props = data.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
+
+                                            var className = currentClass.Identifier.Text;
+                                            var propsList = new Dictionary<string, string>();
+                                            foreach (var p in props)
+                                            {
+                                                //"    \r\n        public string CustomerID { get; set; }\r\n"
+                                                // if is a relation prop, continue
+                                                if (p.GetText().ToString().Contains("virtual")) continue;
+                                                var line = p.GetText().ToString();
+                                                var name = p.Identifier.Text;
+                                                string type = "";
+
+                                                /* if (!p.GetText().ToString().Contains("Nullable"))
+                                                 {
+                                                     type = data.GetDeclaredSymbol(p).Type.Name;
+                                                 }
+                                                 else
+                                                 {
+                                                     var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
+                                                     type = data.GetDeclaredSymbol(p).Type.Name + realType;
+                                                 }*/
+
+                                                type = line.Substring(line.IndexOf("public ") + 7, line.IndexOf(" " + name) - line.IndexOf("public ") - 7);
+
+                                                //add the name and type of the prop
+                                                propsList.Add(name, type);
+                                            }
+
+                                            var code = CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
+
+                                            GetCurrentSolution(out solution);
+                                            project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+
+                                            var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModels" });
+                                            workspace.TryApplyChanges(vm.Project.Solution);
+                                            LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
+                                        }
+                                    }
+                                    ProgressBar.Value = 100;
+                                    LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :)", Color.Orange);
+                                    LogBox.AppendLine(GetHour() + " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                                 }
-                                ProgressBar.Value = 100;
-                                LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :)", Color.Orange);
-                                LogBox.AppendLine(GetHour() + " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                             }
+
+                        }
+                        catch (Exception)
+                        {
+                            ProgressBar.Value = 100;
+                            LogBox.AppendLine(
+                                       GetHour() +
+                                       " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.",
+                                       Color.Red);
                         }
                     }
                 }
