@@ -268,7 +268,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                         }
                                     }
                                     ProgressBar.Value = 100;
-                                    LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :)", Color.Orange);
+                                    LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :). In case of wrong PK, modify method 'GetKeys()' of his respective ViewModel", Color.Orange);
                                     LogBox.AppendLine(GetHour() + " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                                 }
                             }
