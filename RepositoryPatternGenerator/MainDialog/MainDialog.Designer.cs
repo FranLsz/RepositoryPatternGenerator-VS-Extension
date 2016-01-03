@@ -141,11 +141,11 @@
             // 
             this.LogBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.LogBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.LogBox.Location = new System.Drawing.Point(206, 233);
+            this.LogBox.Location = new System.Drawing.Point(76, 233);
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
             this.LogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(436, 187);
+            this.LogBox.Size = new System.Drawing.Size(665, 187);
             this.LogBox.TabIndex = 6;
             this.LogBox.Text = "";
             this.LogBox.Visible = false;
@@ -381,6 +381,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(824, 586);
+            this.Controls.Add(this.SettingsPanel);
             this.Controls.Add(this.SettingsBtn);
             this.Controls.Add(this.GoBackBtn);
             this.Controls.Add(this.GitHubLink);
@@ -389,7 +390,6 @@
             this.Controls.Add(this.Header1);
             this.Controls.Add(this.Header2);
             this.Controls.Add(this.Logo);
-            this.Controls.Add(this.SettingsPanel);
             this.Controls.Add(this.GenerateBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.ProgressBar);
