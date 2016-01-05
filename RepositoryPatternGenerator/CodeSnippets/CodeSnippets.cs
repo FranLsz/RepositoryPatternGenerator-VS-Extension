@@ -97,11 +97,11 @@ namespace " + RepositoryName + @".Repository
     {
         ICollection<TViewModel> Get();
         TViewModel Get(params object[] keys);
-        ICollection<TViewModel> Get(Expression<Func<TModel, bool>> expression);
+        ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip = null, int? take = null, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null);
         TViewModel Add(TViewModel model);
         int Update(TViewModel model);
         int Delete(params object[] keys);
-        int Delete(Expression<Func<TModel, bool>> expression);
+        int Delete(Expression<Func<TModel, bool>> where);
     }
 }";
         }
@@ -150,50 +150,6 @@ namespace " + RepositoryName + @".Repository
             this._context = context;
         }
 
-        public virtual TViewModel Add(TViewModel model)
-        {
-            var m = model.ToDataBase();
-            var addedModel = DbSet.Add(m);
-            try
-            {
-                _context.SaveChanges();
-                model.FromDataBase(addedModel);
-                return model;
-            }
-            catch (Exception)
-            {
-                return default(TViewModel);
-            }
-        }
-
-        public virtual int Delete(Expression<Func<TModel, bool>> expression)
-        {
-            var data = DbSet.Where(expression);
-            DbSet.RemoveRange(data);
-            try
-            {
-                return _context.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
-
-        public virtual int Delete(params object[] keys)
-        {
-            var data = DbSet.Find(keys);
-            DbSet.Remove(data);
-            try
-            {
-                return _context.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
-
         public virtual ICollection<TViewModel> Get()
         {
             var list = new List<TViewModel>();
@@ -219,10 +175,25 @@ namespace " + RepositoryName + @".Repository
             return vm;
         }
 
-        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> expression)
+        public ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
         {
             var data = new List<TViewModel>();
-            foreach (var model in DbSet.Where(expression))
+            var query = DbSet.Where(where);
+
+            if (orderBy != null && orderAsc == null)
+                query = query.OrderBy(orderBy).AsQueryable();
+            else if (orderBy != null && orderAsc.Value)
+                query = query.OrderBy(orderBy).AsQueryable();
+            else if (orderBy != null)
+                query = query.OrderByDescending(orderBy).AsQueryable();
+
+            if (skip != null)
+                query = query.Skip(skip.Value);
+
+            if (take != null)
+                query = query.Take(take.Value);
+
+            foreach (var model in query)
             {
                 var obj = new TViewModel();
                 obj.FromDataBase(model);
@@ -232,10 +203,54 @@ namespace " + RepositoryName + @".Repository
             return data;
         }
 
+        public virtual TViewModel Add(TViewModel model)
+        {
+            var m = model.ToDataBase();
+            var addedModel = DbSet.Add(m);
+            try
+            {
+                _context.SaveChanges();
+                model.FromDataBase(addedModel);
+                return model;
+            }
+            catch (Exception)
+            {
+                return default(TViewModel);
+            }
+        }
+
         public virtual int Update(TViewModel model)
         {
             var obj = DbSet.Find(model.GetKeys());
             model.UpdateDataBase(obj);
+            try
+            {
+                return _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public virtual int Delete(Expression<Func<TModel, bool>> where)
+        {
+            var data = DbSet.Where(where);
+            DbSet.RemoveRange(data);
+            try
+            {
+                return _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public virtual int Delete(params object[] keys)
+        {
+            var data = DbSet.Find(keys);
+            DbSet.Remove(data);
             try
             {
                 return _context.SaveChanges();
