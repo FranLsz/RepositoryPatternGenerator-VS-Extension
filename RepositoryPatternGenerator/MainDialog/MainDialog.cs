@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -29,62 +30,137 @@ namespace RepositoryPatternGenerator.MainDialog
             LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
         }
 
-        private async void GenerateBtn_Click(object sender, EventArgs e)
+        // Send progress
+        private void Send(BackgroundWorker worker, int progress)
+        {
+            worker.ReportProgress(progress);
+        }
+        // Send with text
+        private void Send(BackgroundWorker worker, int progress, string text)
+        {
+            worker.ReportProgress(progress, new Tuple<string>(text));
+        }
+        // Send with text color
+        private void Send(BackgroundWorker worker, int progress, string text, Color color)
+        {
+            worker.ReportProgress(progress, new Tuple<string, Color>(text, color));
+        }
+
+        private void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            ProgressBar.Value = e.ProgressPercentage;
+
+            if (e.UserState == null) return;
+
+            if (e.UserState.GetType() == typeof(Tuple<string, Color>))
+            {
+                var tuple = (Tuple<string, Color>)e.UserState;
+                LogBox.AppendLine(GetHour() + tuple.Item1, tuple.Item2);
+            }
+            else if (e.UserState.GetType() == typeof(Tuple<string>))
+            {
+                var tuple = (Tuple<string>)e.UserState;
+                LogBox.AppendLine(GetHour() + tuple.Item1);
+            }
+        }
+
+        private void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+                LogBox.AppendLine("Canceled!");
+
+            else if (e.Error != null)
+                LogBox.AppendLine(("Error: " + e.Error.Message), Color.Red);
+
+            else
+                LogBox.AppendLine("Done!");
+
+            ExitBtn.Visible = true;
+        }
+
+        private void GenerateBtn_Click(object sender, EventArgs e)
         {
             GenerateBtn.Visible = false;
             SettingsBtn.Visible = false;
             GoBackBtn.Visible = false;
             LogBox.Visible = true;
             ProgressBar.Visible = true;
-            LogBox.Text = "";
-            LogBox.AppendLine("---RPG process start---");
 
-            var repositoryName = SettingsRepositoryName.Text;
-            var modelsName = SettingsModelsName.Text;
+            BackgroundWorker bw = new BackgroundWorker
+            {
+                WorkerSupportsCancellation = true,
+                WorkerReportsProgress = true
+            };
+            bw.DoWork += bw_DoWork;
+            bw.ProgressChanged += bw_ProgressChanged;
+            bw.RunWorkerCompleted += bw_RunWorkerCompleted;
 
-            LogBox.AppendLine(GetHour() + " - Trying to get workspace");
+            var param = new Dictionary<string, object>
+             {
+                 {"RepositoryProjectName", SettingsRepositoryName.Text},
+                 {"ModelsFolderName", SettingsModelsName.Text}
+             };
+
+            if (bw.IsBusy != true)
+            {
+                bw.RunWorkerAsync(param);
+            }
+        }
+
+        private async void bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            if (worker.CancellationPending)
+            {
+                e.Cancel = true;
+                return;
+            }
+            // PARAMS
+            var param = (Dictionary<string, object>)e.Argument;
+
+            var repositoryName = param["RepositoryProjectName"].ToString();
+            var modelsName = param["ModelsFolderName"].ToString();
+
+            Send(worker, 0, "---RPG process start---");
+
+            Send(worker, 0, " - Trying to get workspace");
             var workspace = GetWorkspace();
-            LogBox.AppendLine(GetHour() + " - Workspace loaded", Color.Green);
+            Send(worker, 5, " - Workspace loaded", Color.Green);
 
-            LogBox.AppendLine(GetHour() + " - Trying to get current solution");
+            Send(worker, 5, " - Trying to get current solution");
             Solution solution;
             GetCurrentSolution(out solution);
             if (solution.FilePath == null)
             {
-                LogBox.AppendLine(GetHour() + " - Solution not found", Color.Red);
-                ProgressBar.Value = 100;
+                Send(worker, 5, " - Solution not found", Color.Red);
             }
             else
             {
-                LogBox.AppendLine(GetHour() + " - Solution successfully loaded", Color.Green);
-                LogBox.AppendLine(GetHour() + " - Trying to get the repository project");
+                Send(worker, 10, " - Solution successfully loaded", Color.Green);
+                Send(worker, 10, " - Trying to get the repository project");
                 var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                 if (project == null)
                 {
-                    LogBox.AppendLine(GetHour() + " - Project not found, ensure that you have a project named '" + repositoryName + "' in the current solution", Color.Red);
-                    ProgressBar.Value = 100;
+                    Send(worker, 10, " - Project not found, ensure that you have a project named '" + repositoryName + "' in the current solution", Color.Red);
                 }
                 else
                 {
-                    LogBox.AppendLine(GetHour() + " - Project 'Repository' successfully loaded", Color.Green);
+                    Send(worker, 15, " - Project 'Repository' successfully loaded", Color.Green);
 
                     var docs = project.Documents.Where(d => d.Folders.Contains("ViewModels") || d.Folders.Contains("Repository"));
 
                     if (docs.Any())
                     {
-                        LogBox.AppendLine(
-                            GetHour() +
-                            " - The project already have a folder named 'Repository' or 'ViewModels', please remove it before generate the repository pattern",
+                        Send(worker, 15, " - The project already have a folder named 'Repository' or 'ViewModels', please remove it before generate the repository pattern",
                             Color.Red);
-                        ProgressBar.Value = 100;
                     }
                     else
                     {
 
                         try
                         {
-                            LogBox.AppendLine(GetHour() + " - Trying to generate root folders and interfaces");
+                            Send(worker, 15, " - Trying to generate root folders and interfaces");
 
                             CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
                             CodeSnippets.CodeSnippets.ModelsName = modelsName;
@@ -92,30 +168,27 @@ namespace RepositoryPatternGenerator.MainDialog
 
                             var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
                                 new[] { repositoryName, "Repository" });
-                            LogBox.AppendLine(GetHour() + " - File IRepository generated", Color.Green);
+                            Send(worker, 20, " - File IRepository generated", Color.Green);
 
 
                             var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
-                            LogBox.AppendLine(GetHour() + " - File IViewModel generated", Color.Green);
+                            Send(worker, 25, " - File IViewModel generated", Color.Green);
 
 
-                            LogBox.AppendLine(GetHour() + " - Trying to generate EntityRepository class");
+                            Send(worker, 25, " - Trying to generate EntityRepository class");
                             var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
                                 new[] { repositoryName, "Repository" });
-                            LogBox.AppendLine(GetHour() + " - File EntityRepository generated", Color.Green);
+                            Send(worker, 30, " - File EntityRepository generated", Color.Green);
 
-
-                            var applied = workspace.TryApplyChanges(entityRepository.Project.Solution);
-                            ProgressBar.Value = 50;
+                            var applied = true;
+                            workspace.TryApplyChanges(entityRepository.Project.Solution);
                             if (!applied)
                             {
-                                LogBox.AppendLine(GetHour() + " - Files cant be loaded on current solution", Color.Red);
-                                ProgressBar.Value = 100;
+                                Send(worker, 30, " - Files cant be loaded on current solution", Color.Red);
 
                             }
                             else
                             {
-                                //LogBox.AppendLine(GetHour() + " - Changes loaded on current solution", Color.Green);
 
                                 GetCurrentSolution(out solution);
 
@@ -123,16 +196,12 @@ namespace RepositoryPatternGenerator.MainDialog
                                 var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
                                 if (!modelsDocument.Any())
                                 {
-                                    LogBox.AppendLine(
-                                        GetHour() +
-                                        " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                    Send(worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
                                         Color.Red);
-                                    ProgressBar.Value = 100;
                                 }
                                 else
                                 {
-                                    ProgressBar.Value = 75;
-                                    LogBox.AppendLine(GetHour() + " - Trying to generate ViewModels for each entity");
+                                    Send(worker, 75, " - Trying to generate ViewModels for each entity");
 
                                     //PRIMARY KEYS RASTREATOR
                                     var controlPkProp = new Dictionary<string, List<string>>();
@@ -264,30 +333,28 @@ namespace RepositoryPatternGenerator.MainDialog
 
                                             var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModels" });
                                             workspace.TryApplyChanges(vm.Project.Solution);
-                                            LogBox.AppendLine(GetHour() + $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
+                                            Send(worker, 75, $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                         }
                                     }
-                                    ProgressBar.Value = 100;
-                                    LogBox.AppendLine(GetHour() + " - Its recommended to check if selected primary keys are correct, the algorithm could fail :). In case of wrong PK, modify method 'GetKeys()' of his respective ViewModel", Color.Orange);
-                                    LogBox.AppendLine(GetHour() + " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
+                                    Send(worker, 100, " - Its recommended to check if selected primary keys are correct, the algorithm could fail :). In case of wrong PK, modify method 'GetKeys()' of his respective ViewModel", Color.Orange);
+                                    Send(worker, 100, " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                                 }
                             }
 
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            ProgressBar.Value = 100;
-                            LogBox.AppendLine(
-                                       GetHour() +
-                                       " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.",
+                            Send(worker, 100, " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.",
                                        Color.Red);
                         }
                     }
                 }
             }
-            LogBox.AppendLine("---RPG process end---");
-            ExitBtn.Visible = true;
+            Send(worker, 100, "---RPG process end---");
+            
         }
+
+
 
         private VisualStudioWorkspace GetWorkspace()
         {
