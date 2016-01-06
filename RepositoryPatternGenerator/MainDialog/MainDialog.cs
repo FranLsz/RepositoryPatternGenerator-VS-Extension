@@ -72,19 +72,26 @@ namespace RepositoryPatternGenerator.MainDialog
             else if (e.Error != null)
                 LogBox.AppendLine(("Error: " + e.Error.Message), Color.Red);
 
-            else
-                LogBox.AppendLine("Done!");
-
             ExitBtn.Visible = true;
         }
 
         private void GenerateBtn_Click(object sender, EventArgs e)
         {
+            Solution solution;
+            GetCurrentSolution(out solution);
+            if (solution.FilePath == null)
+            {
+                SolutionNotFound.Visible = true;
+                return;
+            }
+
             GenerateBtn.Visible = false;
             SettingsBtn.Visible = false;
             GoBackBtn.Visible = false;
             LogBox.Visible = true;
             ProgressBar.Visible = true;
+
+
 
             BackgroundWorker bw = new BackgroundWorker
             {
@@ -96,10 +103,10 @@ namespace RepositoryPatternGenerator.MainDialog
             bw.RunWorkerCompleted += bw_RunWorkerCompleted;
 
             var param = new Dictionary<string, object>
-             {
-                 {"RepositoryProjectName", SettingsRepositoryName.Text},
-                 {"ModelsFolderName", SettingsModelsName.Text}
-             };
+                {
+                    {"RepositoryProjectName", SettingsRepositoryName.Text},
+                    {"ModelsFolderName", SettingsModelsName.Text}
+                };
 
             if (bw.IsBusy != true)
             {
@@ -121,7 +128,7 @@ namespace RepositoryPatternGenerator.MainDialog
             var repositoryName = param["RepositoryProjectName"].ToString();
             var modelsName = param["ModelsFolderName"].ToString();
 
-            Send(worker, 0, "---RPG process start---");
+            Send(worker, 0, " ---RPG process started---");
 
             Send(worker, 0, " - Trying to get workspace");
             var workspace = GetWorkspace();
@@ -160,47 +167,57 @@ namespace RepositoryPatternGenerator.MainDialog
 
                         try
                         {
-                            Send(worker, 15, " - Trying to generate root folders and interfaces");
+                            Send(worker, 15, " - Ckecking project integrity");
 
-                            CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
-                            CodeSnippets.CodeSnippets.ModelsName = modelsName;
-
-
-                            var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
-                                new[] { repositoryName, "Repository" });
-                            Send(worker, 20, " - File IRepository generated", Color.Green);
-
-
-                            var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
-                            Send(worker, 25, " - File IViewModel generated", Color.Green);
-
-
-                            Send(worker, 25, " - Trying to generate EntityRepository class");
-                            var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
-                                new[] { repositoryName, "Repository" });
-                            Send(worker, 30, " - File EntityRepository generated", Color.Green);
-
-                            var applied = true;
-                            workspace.TryApplyChanges(entityRepository.Project.Solution);
-                            if (!applied)
+                            var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                            var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                            if (!modelsDocument.Any())
                             {
-                                Send(worker, 30, " - Files cant be loaded on current solution", Color.Red);
-
+                                Send(worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                    Color.Red);
                             }
-                            else
-                            {
+                            else {
 
-                                GetCurrentSolution(out solution);
+                                Send(worker, 20, " - Trying to generate root folders and interfaces");
 
-                                var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
-                                var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
-                                if (!modelsDocument.Any())
+                                CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
+                                CodeSnippets.CodeSnippets.ModelsName = modelsName;
+
+
+                                var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
+                                    new[] { repositoryName, "Repository" });
+                                Send(worker, 20, " - File IRepository generated", Color.Green);
+
+
+                                var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
+                                Send(worker, 25, " - File IViewModel generated", Color.Green);
+
+
+                                Send(worker, 25, " - Trying to generate EntityRepository class");
+                                var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
+                                    new[] { repositoryName, "Repository" });
+                                Send(worker, 30, " - File EntityRepository generated", Color.Green);
+
+                                // var applied = true;
+                                workspace.TryApplyChanges(entityRepository.Project.Solution);
+                                if (false)
                                 {
-                                    Send(worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
-                                        Color.Red);
+                                    //Send(worker, 30, " - Files cant be loaded on current solution", Color.Red);
                                 }
                                 else
                                 {
+
+                                    GetCurrentSolution(out solution);
+
+                                    documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
+                                    modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                                    /*if (!modelsDocument.Any())
+                                    {
+                                        Send(worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                            Color.Red);
+                                    }
+                                    else
+                                    {*/
                                     Send(worker, 75, " - Trying to generate ViewModels for each entity");
 
                                     //PRIMARY KEYS RASTREATOR
@@ -350,8 +367,8 @@ namespace RepositoryPatternGenerator.MainDialog
                     }
                 }
             }
-            Send(worker, 100, "---RPG process end---");
-            
+            Send(worker, 100, " ---RPG process ended---");
+
         }
 
 

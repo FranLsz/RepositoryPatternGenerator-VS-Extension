@@ -98,6 +98,7 @@ namespace " + RepositoryName + @".Repository
         ICollection<TViewModel> Get();
         TViewModel Get(params object[] keys);
         ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip = null, int? take = null, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null);
+        int Count(Expression<Func<TModel, bool>> where = null);        
         TViewModel Add(TViewModel model);
         int Update(TViewModel model);
         int Delete(params object[] keys);
@@ -175,7 +176,7 @@ namespace " + RepositoryName + @".Repository
             return vm;
         }
 
-        public ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
+        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
         {
             var data = new List<TViewModel>();
             var query = DbSet.Where(where);
@@ -201,6 +202,11 @@ namespace " + RepositoryName + @".Repository
             }
 
             return data;
+        }
+
+        public virtual int Count(Expression<Func<TModel, bool>> where = null)
+        {
+            return where != null ? DbSet.Where(where).Count() : DbSet.Count();
         }
 
         public virtual TViewModel Add(TViewModel model)

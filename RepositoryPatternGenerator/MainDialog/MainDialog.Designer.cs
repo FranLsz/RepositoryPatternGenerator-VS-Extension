@@ -72,6 +72,7 @@
             this.RepositoryTree = new System.Windows.Forms.TreeView();
             this.SettingsLabel = new System.Windows.Forms.Label();
             this.GoBackBtn = new System.Windows.Forms.PictureBox();
+            this.SolutionNotFound = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TwitterLink)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.LinkedInLink)).BeginInit();
@@ -232,7 +233,7 @@
             this.SettingsPanel.Controls.Add(this.label7);
             this.SettingsPanel.Controls.Add(this.RepositoryTree);
             this.SettingsPanel.Controls.Add(this.SettingsLabel);
-            this.SettingsPanel.Location = new System.Drawing.Point(21, 221);
+            this.SettingsPanel.Location = new System.Drawing.Point(21, 220);
             this.SettingsPanel.Name = "SettingsPanel";
             this.SettingsPanel.Size = new System.Drawing.Size(782, 296);
             this.SettingsPanel.TabIndex = 12;
@@ -380,6 +381,17 @@
             this.GoBackBtn.TabStop = false;
             this.GoBackBtn.Click += new System.EventHandler(this.GoBackBtn_Click);
             // 
+            // SolutionNotFound
+            // 
+            this.SolutionNotFound.ForeColor = System.Drawing.Color.Red;
+            this.SolutionNotFound.Location = new System.Drawing.Point(49, 471);
+            this.SolutionNotFound.Name = "SolutionNotFound";
+            this.SolutionNotFound.Size = new System.Drawing.Size(763, 13);
+            this.SolutionNotFound.TabIndex = 17;
+            this.SolutionNotFound.Text = "Solution not found";
+            this.SolutionNotFound.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.SolutionNotFound.Visible = false;
+            // 
             // MainDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -397,6 +409,7 @@
             this.Controls.Add(this.GenerateBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.ProgressBar);
+            this.Controls.Add(this.SolutionNotFound);
             this.Controls.Add(this.LogBox);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -445,5 +458,6 @@
         private System.Windows.Forms.Panel SettingsPanel;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label LabelVersion;
+        private System.Windows.Forms.Label SolutionNotFound;
     }
 }
