@@ -167,17 +167,18 @@ namespace RepositoryPatternGenerator.MainDialog
 
                         try
                         {
-                            Send(worker, 15, " - Ckecking project integrity");
+                            Send(worker, 15, " - Checking project integrity");
 
                             var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                             var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
                             if (!modelsDocument.Any())
                             {
-                                Send(worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                Send(worker, 15, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
                                     Color.Red);
                             }
                             else {
-
+                                Send(worker, 15, " - Project integrity checked",
+                                    Color.Green);
                                 Send(worker, 20, " - Trying to generate root folders and interfaces");
 
                                 CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
