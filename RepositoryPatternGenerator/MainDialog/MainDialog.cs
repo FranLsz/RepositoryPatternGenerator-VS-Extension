@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.CodeAnalysis;
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using RepositoryPatternGenerator.Utils;
+using Solution = Microsoft.CodeAnalysis.Solution;
 
 namespace RepositoryPatternGenerator.MainDialog
 {
@@ -112,11 +115,14 @@ namespace RepositoryPatternGenerator.MainDialog
             {
                 bw.RunWorkerAsync(param);
             }
+
         }
 
         private async void bw_DoWork(object sender, DoWorkEventArgs e)
         {
+
             BackgroundWorker worker = sender as BackgroundWorker;
+
             if (worker.CancellationPending)
             {
                 e.Cancel = true;
@@ -144,6 +150,56 @@ namespace RepositoryPatternGenerator.MainDialog
             else
             {
                 Send(worker, 10, " - Solution successfully loaded", Color.Green);
+
+                DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
+                var solution2 = (Solution2)dte.Solution;
+
+                var pathProject = solution2.GetProjectTemplate("ClassLibrary.zip", "CSharp");
+
+                if (pathProject.Contains("Store Apps\\Universal Apps"))
+                    pathProject = pathProject.Replace("Store Apps\\Universal Apps", "Windows");
+
+                var solutionName = Path.GetFileNameWithoutExtension(solution2.FullName);
+                solution2.AddFromTemplate(pathProject, solution2.FullName.Replace(solutionName + ".sln", "Repository"), "Repository");
+
+
+                Projects dteProjects = solution2.Projects;
+                EnvDTE.Project dteProject = null;
+
+                for (var i = 1; i <= dteProjects.Count; i++)
+                {
+                    if (dteProjects.Item(i).Name == repositoryName)
+                        dteProject = dteProjects.Item(i);
+                }
+
+                try
+                {
+                    var pathAdo = solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip", "CSharp");
+                    dteProject.ProjectItems.AddFolder(modelsName);
+
+                    foreach (ProjectItem pi in dteProject.ProjectItems)
+                    {
+                        if (pi.Name == "Class1.cs")
+                        {
+                            var filename = pi.FileNames[0];
+                            pi.Delete();
+                            System.IO.File.Delete(filename);
+                        }
+                    }
+
+                    foreach (ProjectItem pi in dteProject.ProjectItems)
+                    {
+                        if (pi.Name == modelsName)
+                            pi.ProjectItems.AddFromTemplate(pathAdo, "Model.edmx");
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+
+                GetCurrentSolution(out solution);
                 Send(worker, 10, " - Trying to get the repository project");
                 var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
@@ -362,8 +418,7 @@ namespace RepositoryPatternGenerator.MainDialog
                         }
                         catch (Exception ex)
                         {
-                            Send(worker, 100, " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.",
-                                       Color.Red);
+                            Send(worker, 100, " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.", Color.Red);
                         }
                     }
                 }
