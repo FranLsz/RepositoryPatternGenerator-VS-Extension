@@ -13,9 +13,11 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
+using Microsoft.VisualStudio.Shell.Interop;
 using RepositoryPatternGenerator.Utils;
 using Solution = Microsoft.CodeAnalysis.Solution;
 using Thread = System.Threading.Thread;
+using VsShellUtilities = Microsoft.VisualStudio.Shell.VsShellUtilities;
 
 namespace RepositoryPatternGenerator.MainDialog
 {
@@ -46,21 +48,40 @@ namespace RepositoryPatternGenerator.MainDialog
                 return;
             }
 
-            PreProcessPanel.Visible = true;
+            PreNProcessPanel.Visible = true;
 
         }
 
         private async void NGenerateBtn_Click(object sender, EventArgs e)
         {
-            PreProcessPanel.Visible = false;
+            if (NProjectNameTxt.Text == "" || NEdmxFileNameTxt.Text == "")
+            {
+                NFieldsRequired.Visible = true;
+                return;
+            }
+            NFieldsRequired.Visible = false;
+
+            Solution solution;
+            GetCurrentSolution(out solution);
+
+            if (solution.Projects.Any(o => o.Name == NProjectNameTxt.Text))
+            {
+                ProjectExist.Visible = true;
+                return;
+            }
+            ProjectExist.Visible = false;
+
+            PreNProcessPanel.Visible = false;
             SettingsBtn.Visible = false;
             GoBackBtn.Visible = false;
             SettingsPanel.Visible = false;
             ProcessPanel.Visible = true;
+
             var options = new Dictionary<string, object>
                 {
+                    {"ProcessType", "Create" },
                     {"RepositoryProjectName", NProjectNameTxt.Text},
-                    {"EdmxFolderName", "Models"},
+                    {"EdmxFolderName", SettingsModelsName.Text},
                     {"EdmxFileName", NEdmxFileNameTxt.Text}
                 };
 
@@ -81,6 +102,57 @@ namespace RepositoryPatternGenerator.MainDialog
                 SolutionNotFound.Visible = true;
                 return;
             }
+            SolutionNotFound.Visible = false;
+
+            if (!solution.Projects.Any())
+            {
+                SolutionEmpty.Visible = true;
+                return;
+            }
+            SolutionEmpty.Visible = false;
+
+            PreEProcessPanel.Visible = true;
+
+            foreach (var pr in solution.Projects)
+            {
+                EProjectNameCbx.Items.Add(pr.Name);
+            }
+
+            EProjectNameCbx.SelectedIndex = 0;
+
+        }
+
+        private async void EGenerateBtn_Click(object sender, EventArgs e)
+        {
+            if (EModelFolder.Text == "")
+            {
+                EFieldRequired.Visible = true;
+                return;
+            }
+            EFieldRequired.Visible = false;
+
+            PreEProcessPanel.Visible = false;
+            SettingsBtn.Visible = false;
+            GoBackBtn.Visible = false;
+            SettingsPanel.Visible = false;
+            ProcessPanel.Visible = true;
+
+            var options = new Dictionary<string, object>
+                {
+                    {"ProcessType", "Add" },
+                    {"RepositoryProjectName", EProjectNameCbx.Text},
+                    {"EdmxFolderName", EModelFolder.Text},
+                    {"EdmxFileName", NEdmxFileNameTxt.Text}
+                };
+
+            var progressIndicator = new Progress<Tuple<int, string, Color>>(ReportProgress);
+
+            await Generate(options, progressIndicator);
+
+            ExitBtn.Visible = true;
+
+
+
         }
 
         void ReportProgress(Tuple<int, string, Color> t)
@@ -107,6 +179,7 @@ namespace RepositoryPatternGenerator.MainDialog
         {
             await Task.Run(async () =>
             {
+                var processType = options["ProcessType"].ToString();
                 var repositoryName = options["RepositoryProjectName"].ToString();
                 var edmxFolderName = options["EdmxFolderName"].ToString();
                 var edmxFileName = options["EdmxFileName"].ToString();
@@ -129,98 +202,100 @@ namespace RepositoryPatternGenerator.MainDialog
                 else
                 {
                     Send(p, 10, " - Solution successfully loaded", Color.Green);
-
-                    try
+                    if (processType == "Create")
                     {
-                        // CREATE PROJECT
-                        Send(p, 10, " - Trying to create '" + repositoryName + "'");
-
-
-                        DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
-                        var solution2 = (Solution2)dte.Solution;
-                        Projects dteProjects = solution2.Projects;
-                        EnvDTE.Project dteProject = null;
-                        var projectExist = false;
-                        for (var i = 1; i <= dteProjects.Count; i++)
+                        try
                         {
-                            if (dteProjects.Item(i).Name == repositoryName)
-                            {
-                                projectExist = true;
-                                dteProject = dteProjects.Item(i);
-                            }
-                        }
-
-                        if (!projectExist)
-                        {
-                            var pathProject = solution2.GetProjectTemplate("ClassLibrary.zip", "CSharp");
-
-                            if (pathProject.Contains("Store Apps\\Universal Apps"))
-                                pathProject = pathProject.Replace("Store Apps\\Universal Apps", "Windows");
-
-                            var solutionName = Path.GetFileNameWithoutExtension(solution2.FullName);
-                            solution2.AddFromTemplate(pathProject,
-                                solution2.FullName.Replace(solutionName + ".sln", repositoryName), repositoryName);
+                            // CREATE PROJECT
+                            Send(p, 10, " - Trying to create '" + repositoryName + "'");
 
 
-
-
+                            DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
+                            var solution2 = (Solution2)dte.Solution;
+                            Projects dteProjects = solution2.Projects;
+                            EnvDTE.Project dteProject = null;
+                            var projectExist = false;
                             for (var i = 1; i <= dteProjects.Count; i++)
                             {
                                 if (dteProjects.Item(i).Name == repositoryName)
+                                {
+                                    projectExist = true;
                                     dteProject = dteProjects.Item(i);
+                                }
                             }
-                            foreach (ProjectItem pi in dteProject.ProjectItems)
+
+                            if (!projectExist)
                             {
-                                if (pi.Name != "Class1.cs") continue;
-                                var filename = pi.FileNames[0];
-                                pi.Delete();
-                                System.IO.File.Delete(filename);
+                                var pathProject = solution2.GetProjectTemplate("ClassLibrary.zip", "CSharp");
+
+                                if (pathProject.Contains("Store Apps\\Universal Apps"))
+                                    pathProject = pathProject.Replace("Store Apps\\Universal Apps", "Windows");
+
+                                var solutionName = Path.GetFileNameWithoutExtension(solution2.FullName);
+                                solution2.AddFromTemplate(pathProject,
+                                    solution2.FullName.Replace(solutionName + ".sln", repositoryName), repositoryName);
+
+
+
+
+                                for (var i = 1; i <= dteProjects.Count; i++)
+                                {
+                                    if (dteProjects.Item(i).Name == repositoryName)
+                                        dteProject = dteProjects.Item(i);
+                                }
+                                foreach (ProjectItem pi in dteProject.ProjectItems)
+                                {
+                                    if (pi.Name != "Class1.cs") continue;
+                                    var filename = pi.FileNames[0];
+                                    pi.Delete();
+                                    System.IO.File.Delete(filename);
+                                }
+
+                                Send(p, 20, " - Project created", Color.Green);
                             }
-
-                            Send(p, 20, " - Project created", Color.Green);
-                        }
-                        else
-                        {
-                            Send(p, 20, " - A project named '" + repositoryName + "' already exists on current solution", Color.Orange);
-                        }
-
-                        try
-                        {
-                            // ADO .NET CREATE
-                            Send(p, 20, " - Generating ADO .NET Entity Data Model");
-                            var pathAdo = solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip", "CSharp");
+                            else
+                            {
+                                Send(p, 20, " - A project named '" + repositoryName + "' already exists on current solution",
+                                    Color.Orange);
+                            }
 
                             try
                             {
-                                dteProject.ProjectItems.AddFolder(edmxFolderName);
+                                // ADO .NET CREATE
+                                Send(p, 20, " - Generating ADO .NET Entity Data Model");
+                                var pathAdo = solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip", "CSharp");
+
+                                try
+                                {
+                                    dteProject.ProjectItems.AddFolder(edmxFolderName);
+                                }
+                                catch (Exception)
+                                {
+                                    // Models folder already exist
+                                }
+
+                                foreach (ProjectItem pi in dteProject.ProjectItems)
+                                {
+                                    if (pi.Name == edmxFolderName)
+                                        pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
+                                }
+
+                                Send(p, 30, " - Data Model succesfully generated", Color.Green);
                             }
                             catch (Exception)
                             {
-                                // Models folder already exist
-                            }
 
-                            foreach (ProjectItem pi in dteProject.ProjectItems)
-                            {
-                                if (pi.Name == edmxFolderName)
-                                    pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName + ".edmx");
+                                Send(p, 30, " - Data Model not generated: ", Color.Red);
                             }
-
-                            Send(p, 30, " - Data Model succesfully generated", Color.Green);
                         }
                         catch (Exception)
                         {
-
-                            Send(p, 30, " - Data Model not generated: ", Color.Red);
+                            Send(p, 30, " - Project not created", Color.Red);
                         }
                     }
-                    catch (Exception)
-                    {
-                        Send(p, 30, " - Project not created", Color.Red);
-                    }
-
 
                     GetCurrentSolution(out solution);
-                    Send(p, 30, " - Trying to get the repository project");
+                    Send(p, 30, " - Trying to get the '" + repositoryName + "' project");
                     var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                     if (project == null)
@@ -245,198 +320,297 @@ namespace RepositoryPatternGenerator.MainDialog
 
                             try
                             {
-
-
                                 var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                                 var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
-                                if (!modelsDocument.Any())
+                                var modelOk = true;
+                                if (!modelsDocument.Any(o => o.Name.Contains(".edmx")))
                                 {
-                                    Send(p, 30, " - The '" + edmxFolderName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
-                                        Color.Red);
-                                }
-                                else {
-                                    Send(p, 30, " - Project integrity checked",
-                                        Color.Green);
-                                    Send(p, 30, " - Trying to generate root folders and interfaces");
+                                    Send(p, 30,
+                                        " - The '" + edmxFolderName +
+                                        "' folder doesnt exist or content .EDMX model, generate Entity Framework data model before use this tool",
+                                        Color.Orange);
 
-                                    CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
-                                    CodeSnippets.CodeSnippets.ModelsName = edmxFolderName;
+                                    var res = VsShellUtilities.ShowMessageBox(ServiceProvider, "",
+                                        "The .EDMX model was not found, do you want to generate it?",
+                                        OLEMSGICON.OLEMSGICON_WARNING,
+                                        OLEMSGBUTTON.OLEMSGBUTTON_YESNO, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
-
-                                    var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
-                                        new[] { repositoryName, "Repository" });
-                                    Send(p, 30, " - File IRepository generated", Color.Green);
-
-
-                                    var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
-                                    Send(p, 30, " - File IViewModel generated", Color.Green);
-
-
-                                    Send(p, 30, " - Trying to generate EntityRepository class");
-                                    var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
-                                        new[] { repositoryName, "Repository" });
-                                    Send(p, 30, " - File EntityRepository generated", Color.Green);
-
-                                    // var applied = true;
-                                    workspace.TryApplyChanges(entityRepository.Project.Solution);
-                                    if (false)
+                                    // if press YES
+                                    if (res == 6)
                                     {
-                                        //Send(p,worker, 30, " - Files cant be loaded on current solution", Color.Red);
+                                        DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
+                                        var solution2 = (Solution2)dte.Solution;
+                                        Projects dteProjects = solution2.Projects;
+                                        EnvDTE.Project dteProject = null;
+                                        for (var i = 1; i <= dteProjects.Count; i++)
+                                        {
+                                            if (dteProjects.Item(i).Name == repositoryName)
+                                            {
+                                                dteProject = dteProjects.Item(i);
+                                            }
+                                        }
+
+                                        try
+                                        {
+                                            // ADO .NET CREATE
+                                            Send(p, 20, " - Generating ADO .NET Entity Data Model");
+                                            var pathAdo =
+                                                solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip",
+                                                    "CSharp");
+
+                                            try
+                                            {
+                                                dteProject.ProjectItems.AddFolder(edmxFolderName);
+                                            }
+                                            catch (Exception)
+                                            {
+                                                // Models folder already exist
+                                            }
+
+                                            foreach (ProjectItem pi in dteProject.ProjectItems)
+                                            {
+                                                if (pi.Name == edmxFolderName)
+                                                    pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
+                                            }
+
+                                            Send(p, 30, " - Data Model succesfully generated", Color.Green);
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                            Send(p, 30, " - Data Model not generated: " + ex.Message, Color.Red);
+                                            modelOk = false;
+                                        }
+
                                     }
                                     else
                                     {
+                                        Send(p, 30, " - Data Model not generated", Color.Red);
+                                        modelOk = false;
+                                    }
 
-                                        GetCurrentSolution(out solution);
+                                }
+                                else
+                                {
+                                    if (modelOk)
+                                    {
 
-                                        documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
-                                        modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
-                                        /*if (!modelsDocument.Any())
+                                        Send(p, 30, " - Project integrity checked",
+                                            Color.Green);
+                                        Send(p, 30, " - Trying to generate root folders and interfaces");
+
+                                        CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
+                                        CodeSnippets.CodeSnippets.ModelsName = edmxFolderName;
+
+
+                                        var iRepository = project.AddDocument("IRepository",
+                                            CodeSnippets.CodeSnippets.GetIRepository(),
+                                            new[] { repositoryName, "Repository" });
+                                        Send(p, 30, " - File IRepository generated", Color.Green);
+
+
+                                        var iView = iRepository.Project.AddDocument("IViewModel",
+                                            CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
+                                        Send(p, 30, " - File IViewModel generated", Color.Green);
+
+
+                                        Send(p, 30, " - Trying to generate EntityRepository class");
+                                        var entityRepository = iView.Project.AddDocument("EntityRepository",
+                                            CodeSnippets.CodeSnippets.GetEntityRepository(),
+                                            new[] { repositoryName, "Repository" });
+                                        Send(p, 30, " - File EntityRepository generated", Color.Green);
+
+                                        // var applied = true;
+                                        workspace.TryApplyChanges(entityRepository.Project.Solution);
+                                        if (false)
                                         {
-                                            Send(p,worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
-                                                Color.Red);
+                                            //Send(p,worker, 30, " - Files cant be loaded on current solution", Color.Red);
                                         }
                                         else
-                                        {*/
-                                        Send(p, 75, " - Trying to generate ViewModels for each entity");
-
-                                        //PRIMARY KEYS RASTREATOR
-                                        var controlPkProp = new Dictionary<string, List<string>>();
-                                        foreach (var d in modelsDocument)
                                         {
-                                            var sm = await d.GetSemanticModelAsync();
-                                            var smtext = sm.SyntaxTree.GetText().ToString();
 
-                                            if (!smtext.Contains($"namespace {repositoryName}.{edmxFolderName}") ||
-                                                smtext.Contains("DbContext"))
-                                                continue;
+                                            GetCurrentSolution(out solution);
 
-                                            var className =
-                                                sm.SyntaxTree.GetRoot()
-                                                    .DescendantNodes()
-                                                    .OfType<ClassDeclarationSyntax>()
-                                                    .First()
-                                                    .Identifier.Text;
-                                            var props =
-                                                sm.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-
-                                            controlPkProp.Add(className, new List<string>());
-
-                                            // first round
-                                            foreach (var pr in props)
+                                            documents =
+                                                solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                                            ;
+                                            modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
+                                            /*if (!modelsDocument.Any())
                                             {
-                                                if (pr.GetText().ToString().Contains("virtual") || pr.GetText().ToString().Contains("Nullable")) continue;
-                                                var name = pr.Identifier.Text;
+                                                Send(p,worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                                    Color.Red);
+                                            }
+                                            else
+                                            {*/
+                                            Send(p, 75, " - Trying to generate ViewModels for each entity");
 
-                                                // class user
-                                                // if prop is id, iduser or userid or user_id
-                                                if (name.ToLower().Equals("id")
-                                                    || name.ToLower().Equals("id_" + className.ToLower())
-                                                    || name.ToLower().Equals("id" + className.ToLower())
-                                                    || name.ToLower().Equals(className.ToLower() + "id")
-                                                    || name.ToLower().Equals(className.ToLower() + "_id"))
+                                            //PRIMARY KEYS RASTREATOR
+                                            var controlPkProp = new Dictionary<string, List<string>>();
+                                            foreach (var d in modelsDocument)
+                                            {
+                                                var sm = await d.GetSemanticModelAsync();
+                                                var smtext = sm.SyntaxTree.GetText().ToString();
+
+                                                if (!smtext.Contains($"namespace {repositoryName}.{edmxFolderName}") ||
+                                                    smtext.Contains("DbContext"))
+                                                    continue;
+
+                                                var className =
+                                                    sm.SyntaxTree.GetRoot()
+                                                        .DescendantNodes()
+                                                        .OfType<ClassDeclarationSyntax>()
+                                                        .First()
+                                                        .Identifier.Text;
+                                                var props =
+                                                    sm.SyntaxTree.GetRoot()
+                                                        .DescendantNodes()
+                                                        .OfType<PropertyDeclarationSyntax>();
+
+                                                controlPkProp.Add(className, new List<string>());
+
+                                                // first round
+                                                foreach (var pr in props)
                                                 {
-                                                    controlPkProp[className].Add(name);
-                                                }
-                                                else
-                                                {
-                                                    if (className.Length < 4) continue;
-                                                    var noExit = true;
-                                                    var i = 1;
-                                                    while (noExit)
+                                                    if (pr.GetText().ToString().Contains("virtual") ||
+                                                        pr.GetText().ToString().Contains("Nullable")) continue;
+                                                    var name = pr.Identifier.Text;
+
+                                                    // class user
+                                                    // if prop is id, iduser or userid or user_id
+                                                    if (name.ToLower().Equals("id")
+                                                        || name.ToLower().Equals("id_" + className.ToLower())
+                                                        || name.ToLower().Equals("id" + className.ToLower())
+                                                        || name.ToLower().Equals(className.ToLower() + "id")
+                                                        || name.ToLower().Equals(className.ToLower() + "_id"))
                                                     {
-                                                        // remove plural chars (-i last letters)
-                                                        var singleClassName = className.Remove(className.Length - i, i);
-                                                        if (name.ToLower().Equals("id")
-                                                            || (name.ToLower()).StartsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                            || (name.ToLower()).StartsWith("id_") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                            || (name.ToLower()).EndsWith("id") && (name.ToLower()).Contains(singleClassName.ToLower())
-                                                            || (name.ToLower()).EndsWith("_id") && (name.ToLower()).Contains(singleClassName.ToLower()))
+                                                        controlPkProp[className].Add(name);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (className.Length < 4) continue;
+                                                        var noExit = true;
+                                                        var i = 1;
+                                                        while (noExit)
                                                         {
-                                                            controlPkProp[className].Add(name);
-                                                            noExit = false;
+                                                            // remove plural chars (-i last letters)
+                                                            var singleClassName = className.Remove(className.Length - i, i);
+                                                            if (name.ToLower().Equals("id")
+                                                                ||
+                                                                (name.ToLower()).StartsWith("id") &&
+                                                                (name.ToLower()).Contains(singleClassName.ToLower())
+                                                                ||
+                                                                (name.ToLower()).StartsWith("id_") &&
+                                                                (name.ToLower()).Contains(singleClassName.ToLower())
+                                                                ||
+                                                                (name.ToLower()).EndsWith("id") &&
+                                                                (name.ToLower()).Contains(singleClassName.ToLower())
+                                                                ||
+                                                                (name.ToLower()).EndsWith("_id") &&
+                                                                (name.ToLower()).Contains(singleClassName.ToLower()))
+                                                            {
+                                                                controlPkProp[className].Add(name);
+                                                                noExit = false;
+                                                            }
+                                                            if (i == 3)
+                                                                noExit = false;
+                                                            i++;
                                                         }
-                                                        if (i == 3)
-                                                            noExit = false;
-                                                        i++;
                                                     }
                                                 }
-                                            }
 
-                                            // if no found any PK -> second round
-                                            if (!controlPkProp[className].Any())
-                                            {
-                                                // less stricted than first
-                                                foreach (var pr in props)
+                                                // if no found any PK -> second round
+                                                if (!controlPkProp[className].Any())
                                                 {
-                                                    if (pr.GetText().ToString().Contains("virtual") || pr.GetText().ToString().Contains("Nullable")) continue;
-                                                    var name = pr.Identifier.Text;
-                                                    if ((name.ToLower().StartsWith("id")
-                                                    || name.ToLower().EndsWith("id"))
-                                                    &&
-                                                    (name.Remove(0, 1).Any(char.IsUpper) || name.Contains("_")))
-                                                        controlPkProp[className].Add(name);
-                                                }
-                                            }
-
-                                        }
-                                        //END PRIMARY KEYS RASTREATOR
-
-                                        GetCurrentSolution(out solution);
-
-                                        documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
-                                        modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
-                                        var count = modelsDocument.Count();
-                                        foreach (var d in modelsDocument)
-                                        {
-                                            var data = await d.GetSemanticModelAsync();
-                                            var text = data.SyntaxTree.GetText().ToString();
-
-                                            if (text.Contains($"namespace {repositoryName}.{edmxFolderName}") && !text.Contains("DbContext"))
-                                            {
-
-                                                var currentClass =
-                                                    data.SyntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-                                                var props = data.SyntaxTree.GetRoot().DescendantNodes().OfType<PropertyDeclarationSyntax>();
-
-                                                var className = currentClass.Identifier.Text;
-                                                var propsList = new Dictionary<string, string>();
-                                                foreach (var pr in props)
-                                                {
-                                                    //"    \r\n        public string CustomerID { get; set; }\r\n"
-                                                    // if is a relation prop, continue
-                                                    if (pr.GetText().ToString().Contains("virtual")) continue;
-                                                    var line = pr.GetText().ToString();
-                                                    var name = pr.Identifier.Text;
-                                                    string type = "";
-
-                                                    /* if (!p.GetText().ToString().Contains("Nullable"))
-                                                     {
-                                                         type = data.GetDeclaredSymbol(p).Type.Name;
-                                                     }
-                                                     else
-                                                     {
-                                                         var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
-                                                         type = data.GetDeclaredSymbol(p).Type.Name + realType;
-                                                     }*/
-
-                                                    type = line.Substring(line.IndexOf("public ") + 7, line.IndexOf(" " + name) - line.IndexOf("public ") - 7);
-
-                                                    //add the name and type of the prop
-                                                    propsList.Add(name, type);
+                                                    // less stricted than first
+                                                    foreach (var pr in props)
+                                                    {
+                                                        if (pr.GetText().ToString().Contains("virtual") ||
+                                                            pr.GetText().ToString().Contains("Nullable")) continue;
+                                                        var name = pr.Identifier.Text;
+                                                        if ((name.ToLower().StartsWith("id")
+                                                             || name.ToLower().EndsWith("id"))
+                                                            &&
+                                                            (name.Remove(0, 1).Any(char.IsUpper) || name.Contains("_")))
+                                                            controlPkProp[className].Add(name);
+                                                    }
                                                 }
 
-                                                var code = CodeSnippets.CodeSnippets.GenerateClassViewModel(className, propsList, controlPkProp[className]);
-
-                                                GetCurrentSolution(out solution);
-                                                project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
-
-                                                var vm = project.AddDocument(className + "ViewModel", code, new[] { repositoryName, "ViewModels" });
-                                                workspace.TryApplyChanges(vm.Project.Solution);
-                                                Send(p, 75, $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}", Color.Green);
                                             }
+                                            //END PRIMARY KEYS RASTREATOR
+
+                                            GetCurrentSolution(out solution);
+
+                                            documents =
+                                                solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                                            modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
+                                            var count = modelsDocument.Count();
+                                            foreach (var d in modelsDocument)
+                                            {
+                                                var data = await d.GetSemanticModelAsync();
+                                                var text = data.SyntaxTree.GetText().ToString();
+
+                                                if (text.Contains($"namespace {repositoryName}.{edmxFolderName}") &&
+                                                    !text.Contains("DbContext"))
+                                                {
+
+                                                    var currentClass =
+                                                        data.SyntaxTree.GetRoot()
+                                                            .DescendantNodes()
+                                                            .OfType<ClassDeclarationSyntax>()
+                                                            .First();
+                                                    var props =
+                                                        data.SyntaxTree.GetRoot()
+                                                            .DescendantNodes()
+                                                            .OfType<PropertyDeclarationSyntax>();
+
+                                                    var className = currentClass.Identifier.Text;
+                                                    var propsList = new Dictionary<string, string>();
+                                                    foreach (var pr in props)
+                                                    {
+                                                        //"    \r\n        public string CustomerID { get; set; }\r\n"
+                                                        // if is a relation prop, continue
+                                                        if (pr.GetText().ToString().Contains("virtual")) continue;
+                                                        var line = pr.GetText().ToString();
+                                                        var name = pr.Identifier.Text;
+                                                        string type = "";
+
+                                                        /* if (!p.GetText().ToString().Contains("Nullable"))
+                                                         {
+                                                             type = data.GetDeclaredSymbol(p).Type.Name;
+                                                         }
+                                                         else
+                                                         {
+                                                             var realType = line.Substring(line.IndexOf("<"), line.IndexOf(">") + 1 - line.IndexOf("<"));
+                                                             type = data.GetDeclaredSymbol(p).Type.Name + realType;
+                                                         }*/
+
+                                                        type = line.Substring(line.IndexOf("public ") + 7,
+                                                            line.IndexOf(" " + name) - line.IndexOf("public ") - 7);
+
+                                                        //add the name and type of the prop
+                                                        propsList.Add(name, type);
+                                                    }
+
+                                                    var code = CodeSnippets.CodeSnippets.GenerateClassViewModel(className,
+                                                        propsList, controlPkProp[className]);
+
+                                                    GetCurrentSolution(out solution);
+                                                    project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+
+                                                    var vm = project.AddDocument(className + "ViewModel", code,
+                                                        new[] { repositoryName, "ViewModels" });
+                                                    workspace.TryApplyChanges(vm.Project.Solution);
+                                                    Send(p, 75,
+                                                        $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}",
+                                                        Color.Green);
+                                                }
+                                            }
+                                            Send(p, 100,
+                                                " - Its recommended to check if selected primary keys are correct, the algorithm could fail :). In case of wrong PK, modify method 'GetKeys()' of his respective ViewModel",
+                                                Color.Orange);
+                                            Send(p, 100, " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---",
+                                                Color.Green);
                                         }
-                                        Send(p, 100, " - Its recommended to check if selected primary keys are correct, the algorithm could fail :). In case of wrong PK, modify method 'GetKeys()' of his respective ViewModel", Color.Orange);
-                                        Send(p, 100, " - ---ALL FILES AND FOLDERS GENERATED SUCCESSFULLY---", Color.Green);
                                     }
                                 }
 
@@ -500,11 +674,20 @@ namespace RepositoryPatternGenerator.MainDialog
         {
             SettingsBtn.Visible = false;
             SettingsPanel.Visible = true;
+            SettingsPanel.BringToFront();
             RepositoryTree.ExpandAll();
         }
 
         private void GoBackBtn_Click(object sender, EventArgs e)
         {
+
+            if (SettingsModelsName.Text == "")
+            {
+                SettingsRequiredField.Visible = true;
+                return;
+            }
+            SettingsRequiredField.Visible = false;
+
             SettingsBtn.Visible = true;
             SettingsPanel.Visible = false;
         }
@@ -540,6 +723,8 @@ namespace RepositoryPatternGenerator.MainDialog
                 }
             }
         }
+
+
     }
 }
 
