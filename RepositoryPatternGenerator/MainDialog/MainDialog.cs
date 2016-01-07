@@ -147,7 +147,8 @@ namespace RepositoryPatternGenerator.MainDialog
                     {"ProcessType", "Add" },
                     {"RepositoryProjectName", EProjectNameCbx.Text},
                     {"EdmxFolderName", EModelFolder.Text},
-                    {"EdmxFileName", NEdmxFileNameTxt.Text}
+                    {"EdmxFileName", NEdmxFileNameTxt.Text},
+                    {"EdmxFolderEmpty", EdmxFolderEmpty.Checked}
                 };
 
             var progressIndicator = new Progress<Tuple<int, string, Color>>(ReportProgress);
@@ -188,6 +189,9 @@ namespace RepositoryPatternGenerator.MainDialog
                 var repositoryName = options["RepositoryProjectName"].ToString();
                 var edmxFolderName = options["EdmxFolderName"].ToString();
                 var edmxFileName = options["EdmxFileName"].ToString();
+                var edmxFolderEmpty = false;
+                if (options.ContainsKey("EdmxFolderEmpty"))
+                    edmxFolderEmpty = (bool)options["EdmxFolderEmpty"];
 
                 Send(p, 0, " ---RPG process started---");
 
@@ -329,23 +333,21 @@ namespace RepositoryPatternGenerator.MainDialog
                                 var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                 var modelOk = true;
 
-                                foreach (var doc in modelsDocument)
-                                {
-                                    var name = doc.Name;
-                                }
-
                                 if (!modelsDocument.Any(o => o.Name.Contains(edmxFileName.Replace(".edmx", ""))))
                                 {
-                                    Send(p, 30,
-                                        " - The '" + edmxFolderName +
-                                        "' folder doesnt exist or content .EDMX model, generate Entity Framework data model before use this tool",
-                                        Color.Orange);
+                                    var res = 6;
+                                    if (!edmxFolderEmpty)
+                                    {
+                                        Send(p, 30,
+                                            " - The '" + edmxFolderName +
+                                            "' folder doesnt exist or content .EDMX model, generate Entity Framework data model before use this tool",
+                                            Color.Orange);
 
-                                    var res = VsShellUtilities.ShowMessageBox(ServiceProvider, "",
-                                        "The .EDMX model was not found, do you want to generate it?",
-                                        OLEMSGICON.OLEMSGICON_WARNING,
-                                        OLEMSGBUTTON.OLEMSGBUTTON_YESNO, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-
+                                        res = VsShellUtilities.ShowMessageBox(ServiceProvider, "",
+                                            "The .EDMX model was not found, do you want to generate it?",
+                                            OLEMSGICON.OLEMSGICON_WARNING,
+                                            OLEMSGBUTTON.OLEMSGBUTTON_YESNO, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                                    }
                                     // if press YES
                                     if (res == 6)
                                     {
@@ -386,10 +388,10 @@ namespace RepositoryPatternGenerator.MainDialog
 
                                             Send(p, 30, " - Data Model succesfully generated", Color.Green);
                                         }
-                                        catch (Exception ex)
+                                        catch (Exception)
                                         {
 
-                                            Send(p, 30, " - Data Model not generated: " + ex.Message, Color.Red);
+                                            Send(p, 30, " - Data Model not generated", Color.Red);
                                             modelOk = false;
                                         }
 
