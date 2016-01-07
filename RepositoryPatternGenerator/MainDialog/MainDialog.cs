@@ -21,7 +21,8 @@ namespace RepositoryPatternGenerator.MainDialog
 {
     public partial class MainDialog : Form
     {
-        private IServiceProvider ServiceProvider { get; set; }
+        private IServiceProvider ServiceProvider { get; }
+
         public MainDialog(IServiceProvider svc)
         {
             ServiceProvider = svc;
@@ -32,12 +33,10 @@ namespace RepositoryPatternGenerator.MainDialog
         {
             MaximizeBox = false;
             MinimizeBox = false;
-
             LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
         }
 
-
-        private async void GenerateBtn_Click(object sender, EventArgs e)
+        private void NewGenerateBtn_Click(object sender, EventArgs e)
         {
             Solution solution;
             GetCurrentSolution(out solution);
@@ -47,80 +46,79 @@ namespace RepositoryPatternGenerator.MainDialog
                 return;
             }
 
-            GenerateBtn.Visible = false;
+            PreProcessPanel.Visible = true;
+
+        }
+
+        private async void NGenerateBtn_Click(object sender, EventArgs e)
+        {
+            PreProcessPanel.Visible = false;
             SettingsBtn.Visible = false;
             GoBackBtn.Visible = false;
-            LogBox.Visible = true;
-            ProgressBar.Visible = true;
-
-            var param = new Dictionary<string, object>
+            SettingsPanel.Visible = false;
+            ProcessPanel.Visible = true;
+            var options = new Dictionary<string, object>
                 {
-                    {"RepositoryProjectName", SettingsRepositoryName.Text},
-                    {"ModelsFolderName", SettingsModelsName.Text}
+                    {"RepositoryProjectName", NProjectNameTxt.Text},
+                    {"EdmxFolderName", "Models"},
+                    {"EdmxFileName", NEdmxFileNameTxt.Text}
                 };
-
-            Send(0, " ---RPG process started---");
-
-
 
             var progressIndicator = new Progress<Tuple<int, string, Color>>(ReportProgress);
 
-            await bw_DoWork2(param, progressIndicator);
-            Send(0, " ---RPG process ended---");
+            await Generate(options, progressIndicator);
 
+            ExitBtn.Visible = true;
         }
+
+
+        private void ExistingGenerateBtn_Click(object sender, EventArgs e)
+        {
+            Solution solution;
+            GetCurrentSolution(out solution);
+            if (solution.FilePath == null)
+            {
+                SolutionNotFound.Visible = true;
+                return;
+            }
+        }
+
         void ReportProgress(Tuple<int, string, Color> t)
         {
             ProgressBar.Value = t.Item1;
-            LogBox.AppendLine(t.Item2, t.Item3);
+            LogBox.AppendLine(GetHour() + t.Item2, t.Item3);
         }
 
-        // Send progress
+        // Send progress with color
         private static void Send(IProgress<Tuple<int, string, Color>> p, int progress, string text, Color color)
         {
             p.Report(new Tuple<int, string, Color>(progress, text, color));
         }
 
+        // Send progress without color
         private static void Send(IProgress<Tuple<int, string, Color>> p, int progress, string text)
         {
             p.Report(new Tuple<int, string, Color>(progress, text, Color.Black));
         }
-        // Send with text
-        private void Send(int progress, string text)
-        {
-            ProgressBar.Value = progress;
-            LogBox.AppendLine(GetHour() + text);
-        }
-        // Send with text color
-        private void Send(int progress, string text, Color color)
-        {
-            ProgressBar.Value = progress;
-            LogBox.AppendLine(GetHour() + text, color);
-        }
 
 
-        private async Task bw_DoWork2(Dictionary<string, object> param, IProgress<Tuple<int, string, Color>> p)
+
+        private async Task Generate(Dictionary<string, object> options, IProgress<Tuple<int, string, Color>> p)
         {
             await Task.Run(async () =>
             {
-                for (int i = 0; i < 5; i++)
-                {
-                    Thread.Sleep(500);
+                var repositoryName = options["RepositoryProjectName"].ToString();
+                var edmxFolderName = options["EdmxFolderName"].ToString();
+                var edmxFileName = options["EdmxFileName"].ToString();
 
-                    Send(p, 0, "Thread " + i, Color.Purple);
-                }
-
-                var repositoryName = param["RepositoryProjectName"].ToString();
-                var modelsName = param["ModelsFolderName"].ToString();
-
-
-                Send(p, 0, " - Trying to get workspace");
                 Send(p, 0, " ---RPG process started---");
 
+                // WORKSPACE LOAD
                 Send(p, 0, " - Trying to get workspace");
                 var workspace = GetWorkspace();
                 Send(p, 5, " - Workspace loaded", Color.Green);
 
+                // SOLUTION LOAD
                 Send(p, 5, " - Trying to get current solution");
                 Solution solution;
                 GetCurrentSolution(out solution);
@@ -132,71 +130,114 @@ namespace RepositoryPatternGenerator.MainDialog
                 {
                     Send(p, 10, " - Solution successfully loaded", Color.Green);
 
-                    DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
-                    var solution2 = (Solution2)dte.Solution;
-
-                    var pathProject = solution2.GetProjectTemplate("ClassLibrary.zip", "CSharp");
-
-                    if (pathProject.Contains("Store Apps\\Universal Apps"))
-                        pathProject = pathProject.Replace("Store Apps\\Universal Apps", "Windows");
-
-                    var solutionName = Path.GetFileNameWithoutExtension(solution2.FullName);
-                    solution2.AddFromTemplate(pathProject, solution2.FullName.Replace(solutionName + ".sln", "Repository"), "Repository");
-
-
-                    Projects dteProjects = solution2.Projects;
-                    EnvDTE.Project dteProject = null;
-
-                    for (var i = 1; i <= dteProjects.Count; i++)
-                    {
-                        if (dteProjects.Item(i).Name == repositoryName)
-                            dteProject = dteProjects.Item(i);
-                    }
-
                     try
                     {
-                        var pathAdo = solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip", "CSharp");
-                        dteProject.ProjectItems.AddFolder(modelsName);
+                        // CREATE PROJECT
+                        Send(p, 10, " - Trying to create '" + repositoryName + "'");
 
-                        foreach (ProjectItem pi in dteProject.ProjectItems)
+
+                        DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
+                        var solution2 = (Solution2)dte.Solution;
+                        Projects dteProjects = solution2.Projects;
+                        EnvDTE.Project dteProject = null;
+                        var projectExist = false;
+                        for (var i = 1; i <= dteProjects.Count; i++)
                         {
-                            if (pi.Name == "Class1.cs")
+                            if (dteProjects.Item(i).Name == repositoryName)
                             {
+                                projectExist = true;
+                                dteProject = dteProjects.Item(i);
+                            }
+                        }
+
+                        if (!projectExist)
+                        {
+                            var pathProject = solution2.GetProjectTemplate("ClassLibrary.zip", "CSharp");
+
+                            if (pathProject.Contains("Store Apps\\Universal Apps"))
+                                pathProject = pathProject.Replace("Store Apps\\Universal Apps", "Windows");
+
+                            var solutionName = Path.GetFileNameWithoutExtension(solution2.FullName);
+                            solution2.AddFromTemplate(pathProject,
+                                solution2.FullName.Replace(solutionName + ".sln", repositoryName), repositoryName);
+
+
+
+
+                            for (var i = 1; i <= dteProjects.Count; i++)
+                            {
+                                if (dteProjects.Item(i).Name == repositoryName)
+                                    dteProject = dteProjects.Item(i);
+                            }
+                            foreach (ProjectItem pi in dteProject.ProjectItems)
+                            {
+                                if (pi.Name != "Class1.cs") continue;
                                 var filename = pi.FileNames[0];
                                 pi.Delete();
                                 System.IO.File.Delete(filename);
                             }
+
+                            Send(p, 20, " - Project created", Color.Green);
+                        }
+                        else
+                        {
+                            Send(p, 20, " - A project named '" + repositoryName + "' already exists on current solution", Color.Orange);
                         }
 
-                        foreach (ProjectItem pi in dteProject.ProjectItems)
+                        try
                         {
-                            if (pi.Name == modelsName)
-                                pi.ProjectItems.AddFromTemplate(pathAdo, "Model.edmx");
+                            // ADO .NET CREATE
+                            Send(p, 20, " - Generating ADO .NET Entity Data Model");
+                            var pathAdo = solution2.GetProjectItemTemplate("AdoNetEntityDataModelCSharp.zip", "CSharp");
+
+                            try
+                            {
+                                dteProject.ProjectItems.AddFolder(edmxFolderName);
+                            }
+                            catch (Exception)
+                            {
+                                // Models folder already exist
+                            }
+
+                            foreach (ProjectItem pi in dteProject.ProjectItems)
+                            {
+                                if (pi.Name == edmxFolderName)
+                                    pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName + ".edmx");
+                            }
+
+                            Send(p, 30, " - Data Model succesfully generated", Color.Green);
+                        }
+                        catch (Exception)
+                        {
+
+                            Send(p, 30, " - Data Model not generated: ", Color.Red);
                         }
                     }
                     catch (Exception)
                     {
-                        // ignored
+                        Send(p, 30, " - Project not created", Color.Red);
                     }
 
 
                     GetCurrentSolution(out solution);
-                    Send(p, 10, " - Trying to get the repository project");
+                    Send(p, 30, " - Trying to get the repository project");
                     var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                     if (project == null)
                     {
-                        Send(p, 10, " - Project not found, ensure that you have a project named '" + repositoryName + "' in the current solution", Color.Red);
+                        Send(p, 30, " - Project not found, ensure that you have a project named '" + repositoryName + "' in the current solution", Color.Red);
                     }
                     else
                     {
-                        Send(p, 15, " - Project 'Repository' successfully loaded", Color.Green);
+                        Send(p, 30, " - Project " + repositoryName + " successfully loaded", Color.Green);
+
+                        Send(p, 30, " - Checking project integrity");
 
                         var docs = project.Documents.Where(d => d.Folders.Contains("ViewModels") || d.Folders.Contains("Repository"));
 
                         if (docs.Any())
                         {
-                            Send(p, 15, " - The project already have a folder named 'Repository' or 'ViewModels', please remove it before generate the repository pattern",
+                            Send(p, 30, " - The project already have a folder named 'Repository' or 'ViewModels', please remove it before generate the repository pattern",
                                 Color.Red);
                         }
                         else
@@ -204,34 +245,34 @@ namespace RepositoryPatternGenerator.MainDialog
 
                             try
                             {
-                                Send(p, 15, " - Checking project integrity");
+
 
                                 var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
-                                var modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                                var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                 if (!modelsDocument.Any())
                                 {
-                                    Send(p, 15, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
+                                    Send(p, 30, " - The '" + edmxFolderName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
                                         Color.Red);
                                 }
                                 else {
-                                    Send(p, 15, " - Project integrity checked",
+                                    Send(p, 30, " - Project integrity checked",
                                         Color.Green);
-                                    Send(p, 20, " - Trying to generate root folders and interfaces");
+                                    Send(p, 30, " - Trying to generate root folders and interfaces");
 
                                     CodeSnippets.CodeSnippets.RepositoryName = repositoryName;
-                                    CodeSnippets.CodeSnippets.ModelsName = modelsName;
+                                    CodeSnippets.CodeSnippets.ModelsName = edmxFolderName;
 
 
                                     var iRepository = project.AddDocument("IRepository", CodeSnippets.CodeSnippets.GetIRepository(),
                                         new[] { repositoryName, "Repository" });
-                                    Send(p, 20, " - File IRepository generated", Color.Green);
+                                    Send(p, 30, " - File IRepository generated", Color.Green);
 
 
                                     var iView = iRepository.Project.AddDocument("IViewModel", CodeSnippets.CodeSnippets.GetIViewModel(), new[] { repositoryName, "ViewModels" });
-                                    Send(p, 25, " - File IViewModel generated", Color.Green);
+                                    Send(p, 30, " - File IViewModel generated", Color.Green);
 
 
-                                    Send(p, 25, " - Trying to generate EntityRepository class");
+                                    Send(p, 30, " - Trying to generate EntityRepository class");
                                     var entityRepository = iView.Project.AddDocument("EntityRepository", CodeSnippets.CodeSnippets.GetEntityRepository(),
                                         new[] { repositoryName, "Repository" });
                                     Send(p, 30, " - File EntityRepository generated", Color.Green);
@@ -248,7 +289,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                         GetCurrentSolution(out solution);
 
                                         documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents; ;
-                                        modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                                        modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                         /*if (!modelsDocument.Any())
                                         {
                                             Send(p,worker, 30, " - The '" + modelsName + "' folder doesnt exist or is empty, generate Entity Framework data model before use this tool",
@@ -265,7 +306,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                             var sm = await d.GetSemanticModelAsync();
                                             var smtext = sm.SyntaxTree.GetText().ToString();
 
-                                            if (!smtext.Contains($"namespace {repositoryName}.{modelsName}") ||
+                                            if (!smtext.Contains($"namespace {repositoryName}.{edmxFolderName}") ||
                                                 smtext.Contains("DbContext"))
                                                 continue;
 
@@ -343,14 +384,14 @@ namespace RepositoryPatternGenerator.MainDialog
                                         GetCurrentSolution(out solution);
 
                                         documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
-                                        modelsDocument = documents.Where(d => d.Folders.Contains(modelsName));
+                                        modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                         var count = modelsDocument.Count();
                                         foreach (var d in modelsDocument)
                                         {
                                             var data = await d.GetSemanticModelAsync();
                                             var text = data.SyntaxTree.GetText().ToString();
 
-                                            if (text.Contains($"namespace {repositoryName}.{modelsName}") && !text.Contains("DbContext"))
+                                            if (text.Contains($"namespace {repositoryName}.{edmxFolderName}") && !text.Contains("DbContext"))
                                             {
 
                                                 var currentClass =
@@ -400,7 +441,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                 }
 
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 Send(p, 100, " - Something goes wrong :(, please, check if the project already contains any folder named 'Repository' or 'ViewModels' in windows explorer.", Color.Red);
                             }
@@ -409,24 +450,9 @@ namespace RepositoryPatternGenerator.MainDialog
                 }
                 Send(p, 100, " ---RPG process ended---");
 
-
-
-                return "END";
             });
 
         }
-
-        private async Task bw_DoWork(Dictionary<string, object> param)
-        {
-
-
-            // PARAMS
-            //var param = (Dictionary<string, object>)e.Argument;
-            var repositoryName = param["RepositoryProjectName"].ToString();
-            var modelsName = param["ModelsFolderName"].ToString();
-
-        }
-
 
 
         private VisualStudioWorkspace GetWorkspace()
@@ -483,10 +509,6 @@ namespace RepositoryPatternGenerator.MainDialog
             SettingsPanel.Visible = false;
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
         private void SelectParents(TreeNode node, Boolean isChecked)
         {
             var parent = node.Parent;
@@ -518,13 +540,6 @@ namespace RepositoryPatternGenerator.MainDialog
                 }
             }
         }
-
-        private void Header2_Click(object sender, EventArgs e)
-        {
-
-        }
-
     }
-
 }
 

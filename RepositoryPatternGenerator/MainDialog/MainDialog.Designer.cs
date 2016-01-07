@@ -29,31 +29,31 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainDialog));
-            System.Windows.Forms.TreeNode treeNode23 = new System.Windows.Forms.TreeNode("IRepository (Interface)");
-            System.Windows.Forms.TreeNode treeNode24 = new System.Windows.Forms.TreeNode("EntityRepository (Class)");
-            System.Windows.Forms.TreeNode treeNode25 = new System.Windows.Forms.TreeNode("Repository (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode23,
-            treeNode24});
-            System.Windows.Forms.TreeNode treeNode26 = new System.Windows.Forms.TreeNode("IViewModel (Interface)");
-            System.Windows.Forms.TreeNode treeNode27 = new System.Windows.Forms.TreeNode("Model1ViewModel (Class)");
-            System.Windows.Forms.TreeNode treeNode28 = new System.Windows.Forms.TreeNode("Model2ViewModel (Class)");
-            System.Windows.Forms.TreeNode treeNode29 = new System.Windows.Forms.TreeNode("ViewModels (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode26,
-            treeNode27,
-            treeNode28});
-            System.Windows.Forms.TreeNode treeNode30 = new System.Windows.Forms.TreeNode("Model1");
-            System.Windows.Forms.TreeNode treeNode31 = new System.Windows.Forms.TreeNode("Model2");
-            System.Windows.Forms.TreeNode treeNode32 = new System.Windows.Forms.TreeNode("Models (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode30,
-            treeNode31});
-            System.Windows.Forms.TreeNode treeNode33 = new System.Windows.Forms.TreeNode("Repository (Project)", new System.Windows.Forms.TreeNode[] {
-            treeNode25,
-            treeNode29,
-            treeNode32});
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("IRepository (Interface)");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("EntityRepository (Class)");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Repository (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode2});
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("IViewModel (Interface)");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Model1ViewModel (Class)");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Model2ViewModel (Class)");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("ViewModels (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode4,
+            treeNode5,
+            treeNode6});
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Model1");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Model2");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Models (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode8,
+            treeNode9});
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Repository (Project)", new System.Windows.Forms.TreeNode[] {
+            treeNode3,
+            treeNode7,
+            treeNode10});
             this.Logo = new System.Windows.Forms.PictureBox();
             this.Header1 = new System.Windows.Forms.Label();
             this.Header2 = new System.Windows.Forms.Label();
-            this.GenerateBtn = new System.Windows.Forms.Button();
+            this.NewGenerateBtn = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LogBox = new System.Windows.Forms.RichTextBox();
             this.ExitBtn = new System.Windows.Forms.Button();
@@ -73,6 +73,16 @@
             this.SettingsLabel = new System.Windows.Forms.Label();
             this.GoBackBtn = new System.Windows.Forms.PictureBox();
             this.SolutionNotFound = new System.Windows.Forms.Label();
+            this.ExistingGenerateBtn = new System.Windows.Forms.Button();
+            this.ProcessPanel = new System.Windows.Forms.Panel();
+            this.PreProcessPanel = new System.Windows.Forms.Panel();
+            this.Title = new System.Windows.Forms.Label();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.ProjectNameLbl = new System.Windows.Forms.Label();
+            this.NProjectNameTxt = new System.Windows.Forms.TextBox();
+            this.EdmxFileNameLbl = new System.Windows.Forms.Label();
+            this.NEdmxFileNameTxt = new System.Windows.Forms.TextBox();
+            this.NGenerateBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TwitterLink)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.LinkedInLink)).BeginInit();
@@ -81,6 +91,9 @@
             this.SettingsPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GoBackBtn)).BeginInit();
+            this.ProcessPanel.SuspendLayout();
+            this.PreProcessPanel.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Logo
@@ -112,46 +125,43 @@
             this.Header2.Size = new System.Drawing.Size(435, 25);
             this.Header2.TabIndex = 2;
             this.Header2.Text = "Developed and designed by Francisco López Sánchez";
-            this.Header2.Click += new System.EventHandler(this.Header2_Click);
             // 
-            // GenerateBtn
+            // NewGenerateBtn
             // 
-            this.GenerateBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
-            this.GenerateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.GenerateBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
-            this.GenerateBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.GenerateBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.GenerateBtn.Font = new System.Drawing.Font("Segoe UI", 14.25F);
-            this.GenerateBtn.ForeColor = System.Drawing.Color.White;
-            this.GenerateBtn.Location = new System.Drawing.Point(323, 315);
-            this.GenerateBtn.Name = "GenerateBtn";
-            this.GenerateBtn.Size = new System.Drawing.Size(200, 86);
-            this.GenerateBtn.TabIndex = 3;
-            this.GenerateBtn.Text = "Generate";
-            this.GenerateBtn.UseVisualStyleBackColor = false;
-            this.GenerateBtn.Click += new System.EventHandler(this.GenerateBtn_Click);
+            this.NewGenerateBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
+            this.NewGenerateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.NewGenerateBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.NewGenerateBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.NewGenerateBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.NewGenerateBtn.Font = new System.Drawing.Font("Segoe UI", 14.25F);
+            this.NewGenerateBtn.ForeColor = System.Drawing.Color.White;
+            this.NewGenerateBtn.Location = new System.Drawing.Point(80, 327);
+            this.NewGenerateBtn.Name = "NewGenerateBtn";
+            this.NewGenerateBtn.Size = new System.Drawing.Size(200, 86);
+            this.NewGenerateBtn.TabIndex = 3;
+            this.NewGenerateBtn.Text = "Create new repository project";
+            this.NewGenerateBtn.UseVisualStyleBackColor = false;
+            this.NewGenerateBtn.Click += new System.EventHandler(this.NewGenerateBtn_Click);
             // 
             // ProgressBar
             // 
-            this.ProgressBar.Location = new System.Drawing.Point(339, 426);
+            this.ProgressBar.Location = new System.Drawing.Point(311, 214);
             this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(175, 23);
             this.ProgressBar.Step = 1;
             this.ProgressBar.TabIndex = 4;
-            this.ProgressBar.Visible = false;
             // 
             // LogBox
             // 
             this.LogBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.LogBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.LogBox.Location = new System.Drawing.Point(76, 233);
+            this.LogBox.Location = new System.Drawing.Point(68, 3);
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
             this.LogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.LogBox.Size = new System.Drawing.Size(665, 187);
+            this.LogBox.Size = new System.Drawing.Size(665, 193);
             this.LogBox.TabIndex = 6;
             this.LogBox.Text = "";
-            this.LogBox.Visible = false;
             this.LogBox.TextChanged += new System.EventHandler(this.LogBox_TextChanged);
             // 
             // ExitBtn
@@ -163,7 +173,7 @@
             this.ExitBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ExitBtn.Font = new System.Drawing.Font("Segoe UI", 14.25F);
             this.ExitBtn.ForeColor = System.Drawing.Color.White;
-            this.ExitBtn.Location = new System.Drawing.Point(357, 455);
+            this.ExitBtn.Location = new System.Drawing.Point(327, 247);
             this.ExitBtn.Name = "ExitBtn";
             this.ExitBtn.Size = new System.Drawing.Size(140, 38);
             this.ExitBtn.TabIndex = 7;
@@ -177,7 +187,7 @@
             this.TwitterLink.AccessibleDescription = "Twitter";
             this.TwitterLink.Cursor = System.Windows.Forms.Cursors.Hand;
             this.TwitterLink.Image = ((System.Drawing.Image)(resources.GetObject("TwitterLink.Image")));
-            this.TwitterLink.Location = new System.Drawing.Point(308, 522);
+            this.TwitterLink.Location = new System.Drawing.Point(298, 522);
             this.TwitterLink.Name = "TwitterLink";
             this.TwitterLink.Size = new System.Drawing.Size(71, 57);
             this.TwitterLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -190,7 +200,7 @@
             this.LinkedInLink.AccessibleDescription = "LinkedIn";
             this.LinkedInLink.Cursor = System.Windows.Forms.Cursors.Hand;
             this.LinkedInLink.Image = ((System.Drawing.Image)(resources.GetObject("LinkedInLink.Image")));
-            this.LinkedInLink.Location = new System.Drawing.Point(385, 522);
+            this.LinkedInLink.Location = new System.Drawing.Point(375, 522);
             this.LinkedInLink.Name = "LinkedInLink";
             this.LinkedInLink.Size = new System.Drawing.Size(72, 57);
             this.LinkedInLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -203,7 +213,7 @@
             this.GitHubLink.AccessibleDescription = "GitHub";
             this.GitHubLink.Cursor = System.Windows.Forms.Cursors.Hand;
             this.GitHubLink.Image = ((System.Drawing.Image)(resources.GetObject("GitHubLink.Image")));
-            this.GitHubLink.Location = new System.Drawing.Point(463, 522);
+            this.GitHubLink.Location = new System.Drawing.Point(453, 522);
             this.GitHubLink.Name = "GitHubLink";
             this.GitHubLink.Size = new System.Drawing.Size(72, 57);
             this.GitHubLink.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -233,9 +243,9 @@
             this.SettingsPanel.Controls.Add(this.label7);
             this.SettingsPanel.Controls.Add(this.RepositoryTree);
             this.SettingsPanel.Controls.Add(this.SettingsLabel);
-            this.SettingsPanel.Location = new System.Drawing.Point(21, 220);
+            this.SettingsPanel.Location = new System.Drawing.Point(12, 223);
             this.SettingsPanel.Name = "SettingsPanel";
-            this.SettingsPanel.Size = new System.Drawing.Size(782, 296);
+            this.SettingsPanel.Size = new System.Drawing.Size(803, 293);
             this.SettingsPanel.TabIndex = 12;
             this.SettingsPanel.Visible = false;
             // 
@@ -258,7 +268,7 @@
             this.tableLayoutPanel1.Controls.Add(this.SettingsModelsName, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.SettingsRepositoryName, 1, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(48, 112);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(69, 109);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -276,7 +286,6 @@
             this.label3.Size = new System.Drawing.Size(158, 19);
             this.label3.TabIndex = 6;
             this.label3.Text = "Repository project name";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // SettingsModelsName
             // 
@@ -323,37 +332,37 @@
             this.RepositoryTree.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.RepositoryTree.Location = new System.Drawing.Point(507, 32);
             this.RepositoryTree.Name = "RepositoryTree";
-            treeNode23.ForeColor = System.Drawing.Color.Green;
-            treeNode23.Name = "IRepository";
-            treeNode23.Text = "IRepository (Interface)";
-            treeNode24.ForeColor = System.Drawing.Color.Green;
-            treeNode24.Name = "EntityRepository";
-            treeNode24.Text = "EntityRepository (Class)";
-            treeNode25.ForeColor = System.Drawing.Color.Green;
-            treeNode25.Name = "Repository";
-            treeNode25.Text = "Repository (Folder)";
-            treeNode26.ForeColor = System.Drawing.Color.Green;
-            treeNode26.Name = "IViewModel";
-            treeNode26.Text = "IViewModel (Interface)";
-            treeNode27.ForeColor = System.Drawing.Color.Green;
-            treeNode27.Name = "ModelViewModel";
-            treeNode27.Text = "Model1ViewModel (Class)";
-            treeNode28.ForeColor = System.Drawing.Color.Green;
-            treeNode28.Name = "Node7";
-            treeNode28.Text = "Model2ViewModel (Class)";
-            treeNode29.ForeColor = System.Drawing.Color.Green;
-            treeNode29.Name = "ViewModel";
-            treeNode29.Text = "ViewModels (Folder)";
-            treeNode30.Name = "Model1";
-            treeNode30.Text = "Model1";
-            treeNode31.Name = "Model2";
-            treeNode31.Text = "Model2";
-            treeNode32.Name = "Models";
-            treeNode32.Text = "Models (Folder)";
-            treeNode33.Name = "Repository_project";
-            treeNode33.Text = "Repository (Project)";
+            treeNode1.ForeColor = System.Drawing.Color.Green;
+            treeNode1.Name = "IRepository";
+            treeNode1.Text = "IRepository (Interface)";
+            treeNode2.ForeColor = System.Drawing.Color.Green;
+            treeNode2.Name = "EntityRepository";
+            treeNode2.Text = "EntityRepository (Class)";
+            treeNode3.ForeColor = System.Drawing.Color.Green;
+            treeNode3.Name = "Repository";
+            treeNode3.Text = "Repository (Folder)";
+            treeNode4.ForeColor = System.Drawing.Color.Green;
+            treeNode4.Name = "IViewModel";
+            treeNode4.Text = "IViewModel (Interface)";
+            treeNode5.ForeColor = System.Drawing.Color.Green;
+            treeNode5.Name = "ModelViewModel";
+            treeNode5.Text = "Model1ViewModel (Class)";
+            treeNode6.ForeColor = System.Drawing.Color.Green;
+            treeNode6.Name = "Node7";
+            treeNode6.Text = "Model2ViewModel (Class)";
+            treeNode7.ForeColor = System.Drawing.Color.Green;
+            treeNode7.Name = "ViewModel";
+            treeNode7.Text = "ViewModels (Folder)";
+            treeNode8.Name = "Model1";
+            treeNode8.Text = "Model1";
+            treeNode9.Name = "Model2";
+            treeNode9.Text = "Model2";
+            treeNode10.Name = "Models";
+            treeNode10.Text = "Models (Folder)";
+            treeNode11.Name = "Repository_project";
+            treeNode11.Text = "Repository (Project)";
             this.RepositoryTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode33});
+            treeNode11});
             this.RepositoryTree.ShowPlusMinus = false;
             this.RepositoryTree.Size = new System.Drawing.Size(253, 246);
             this.RepositoryTree.TabIndex = 9;
@@ -384,13 +393,136 @@
             // SolutionNotFound
             // 
             this.SolutionNotFound.ForeColor = System.Drawing.Color.Red;
-            this.SolutionNotFound.Location = new System.Drawing.Point(49, 471);
+            this.SolutionNotFound.Location = new System.Drawing.Point(12, 471);
             this.SolutionNotFound.Name = "SolutionNotFound";
-            this.SolutionNotFound.Size = new System.Drawing.Size(763, 13);
+            this.SolutionNotFound.Size = new System.Drawing.Size(800, 13);
             this.SolutionNotFound.TabIndex = 17;
             this.SolutionNotFound.Text = "Solution not found";
             this.SolutionNotFound.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.SolutionNotFound.Visible = false;
+            // 
+            // ExistingGenerateBtn
+            // 
+            this.ExistingGenerateBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
+            this.ExistingGenerateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ExistingGenerateBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.ExistingGenerateBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.ExistingGenerateBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ExistingGenerateBtn.Font = new System.Drawing.Font("Segoe UI", 14.25F);
+            this.ExistingGenerateBtn.ForeColor = System.Drawing.Color.White;
+            this.ExistingGenerateBtn.Location = new System.Drawing.Point(545, 327);
+            this.ExistingGenerateBtn.Name = "ExistingGenerateBtn";
+            this.ExistingGenerateBtn.Size = new System.Drawing.Size(200, 86);
+            this.ExistingGenerateBtn.TabIndex = 18;
+            this.ExistingGenerateBtn.Text = "Add repository to existing project";
+            this.ExistingGenerateBtn.UseVisualStyleBackColor = false;
+            this.ExistingGenerateBtn.Click += new System.EventHandler(this.ExistingGenerateBtn_Click);
+            // 
+            // ProcessPanel
+            // 
+            this.ProcessPanel.Controls.Add(this.LogBox);
+            this.ProcessPanel.Controls.Add(this.ExitBtn);
+            this.ProcessPanel.Controls.Add(this.ProgressBar);
+            this.ProcessPanel.Location = new System.Drawing.Point(12, 223);
+            this.ProcessPanel.Name = "ProcessPanel";
+            this.ProcessPanel.Size = new System.Drawing.Size(800, 293);
+            this.ProcessPanel.TabIndex = 19;
+            this.ProcessPanel.Visible = false;
+            // 
+            // PreProcessPanel
+            // 
+            this.PreProcessPanel.Controls.Add(this.tableLayoutPanel2);
+            this.PreProcessPanel.Controls.Add(this.Title);
+            this.PreProcessPanel.Controls.Add(this.NGenerateBtn);
+            this.PreProcessPanel.Location = new System.Drawing.Point(80, 230);
+            this.PreProcessPanel.Name = "PreProcessPanel";
+            this.PreProcessPanel.Size = new System.Drawing.Size(665, 286);
+            this.PreProcessPanel.TabIndex = 20;
+            this.PreProcessPanel.Visible = false;
+            // 
+            // Title
+            // 
+            this.Title.AutoSize = true;
+            this.Title.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.Title.Location = new System.Drawing.Point(253, 11);
+            this.Title.Name = "Title";
+            this.Title.Size = new System.Drawing.Size(190, 19);
+            this.Title.TabIndex = 0;
+            this.Title.Text = "Create new repository project";
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tableLayoutPanel2.AutoSize = true;
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.Controls.Add(this.NEdmxFileNameTxt, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.EdmxFileNameLbl, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.ProjectNameLbl, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.NProjectNameTxt, 1, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(218, 47);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(285, 56);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // ProjectNameLbl
+            // 
+            this.ProjectNameLbl.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.ProjectNameLbl.AutoSize = true;
+            this.ProjectNameLbl.Location = new System.Drawing.Point(10, 7);
+            this.ProjectNameLbl.Name = "ProjectNameLbl";
+            this.ProjectNameLbl.Size = new System.Drawing.Size(73, 13);
+            this.ProjectNameLbl.TabIndex = 0;
+            this.ProjectNameLbl.Text = "Project name";
+            // 
+            // NProjectNameTxt
+            // 
+            this.NProjectNameTxt.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.NProjectNameTxt.Location = new System.Drawing.Point(105, 3);
+            this.NProjectNameTxt.Name = "NProjectNameTxt";
+            this.NProjectNameTxt.Size = new System.Drawing.Size(167, 22);
+            this.NProjectNameTxt.TabIndex = 1;
+            this.NProjectNameTxt.Text = "Repository";
+            // 
+            // EdmxFileNameLbl
+            // 
+            this.EdmxFileNameLbl.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.EdmxFileNameLbl.AutoSize = true;
+            this.EdmxFileNameLbl.Location = new System.Drawing.Point(3, 35);
+            this.EdmxFileNameLbl.Name = "EdmxFileNameLbl";
+            this.EdmxFileNameLbl.Size = new System.Drawing.Size(87, 13);
+            this.EdmxFileNameLbl.TabIndex = 2;
+            this.EdmxFileNameLbl.Text = "EDMX file name";
+            // 
+            // NEdmxFileNameTxt
+            // 
+            this.NEdmxFileNameTxt.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.NEdmxFileNameTxt.Location = new System.Drawing.Point(105, 31);
+            this.NEdmxFileNameTxt.Name = "NEdmxFileNameTxt";
+            this.NEdmxFileNameTxt.Size = new System.Drawing.Size(167, 22);
+            this.NEdmxFileNameTxt.TabIndex = 3;
+            this.NEdmxFileNameTxt.Text = "Model";
+            // 
+            // NGenerateBtn
+            // 
+            this.NGenerateBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
+            this.NGenerateBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.NGenerateBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.NGenerateBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.NGenerateBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.NGenerateBtn.Font = new System.Drawing.Font("Segoe UI", 14.25F);
+            this.NGenerateBtn.ForeColor = System.Drawing.Color.White;
+            this.NGenerateBtn.Location = new System.Drawing.Point(243, 241);
+            this.NGenerateBtn.Name = "NGenerateBtn";
+            this.NGenerateBtn.Size = new System.Drawing.Size(174, 39);
+            this.NGenerateBtn.TabIndex = 21;
+            this.NGenerateBtn.Text = "Generate";
+            this.NGenerateBtn.UseVisualStyleBackColor = false;
+            this.NGenerateBtn.Click += new System.EventHandler(this.NGenerateBtn_Click);
             // 
             // MainDialog
             // 
@@ -398,6 +530,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(824, 586);
             this.Controls.Add(this.SettingsPanel);
+            this.Controls.Add(this.ProcessPanel);
+            this.Controls.Add(this.PreProcessPanel);
+            this.Controls.Add(this.ExistingGenerateBtn);
             this.Controls.Add(this.SettingsBtn);
             this.Controls.Add(this.GoBackBtn);
             this.Controls.Add(this.GitHubLink);
@@ -406,11 +541,8 @@
             this.Controls.Add(this.Header1);
             this.Controls.Add(this.Header2);
             this.Controls.Add(this.Logo);
-            this.Controls.Add(this.GenerateBtn);
-            this.Controls.Add(this.ExitBtn);
-            this.Controls.Add(this.ProgressBar);
+            this.Controls.Add(this.NewGenerateBtn);
             this.Controls.Add(this.SolutionNotFound);
-            this.Controls.Add(this.LogBox);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -430,6 +562,11 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GoBackBtn)).EndInit();
+            this.ProcessPanel.ResumeLayout(false);
+            this.PreProcessPanel.ResumeLayout(false);
+            this.PreProcessPanel.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -439,7 +576,7 @@
         private System.Windows.Forms.PictureBox Logo;
         private System.Windows.Forms.Label Header1;
         private System.Windows.Forms.Label Header2;
-        private System.Windows.Forms.Button GenerateBtn;
+        private System.Windows.Forms.Button NewGenerateBtn;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.RichTextBox LogBox;
         private System.Windows.Forms.Button ExitBtn;
@@ -459,5 +596,15 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label LabelVersion;
         private System.Windows.Forms.Label SolutionNotFound;
+        private System.Windows.Forms.Button ExistingGenerateBtn;
+        private System.Windows.Forms.Panel ProcessPanel;
+        private System.Windows.Forms.Panel PreProcessPanel;
+        private System.Windows.Forms.Label Title;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Label ProjectNameLbl;
+        private System.Windows.Forms.TextBox NProjectNameTxt;
+        private System.Windows.Forms.TextBox NEdmxFileNameTxt;
+        private System.Windows.Forms.Label EdmxFileNameLbl;
+        private System.Windows.Forms.Button NGenerateBtn;
     }
 }
