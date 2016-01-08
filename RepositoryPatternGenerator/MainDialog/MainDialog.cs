@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using Microsoft.CodeAnalysis;
 using EnvDTE;
 using EnvDTE80;
@@ -289,9 +290,46 @@ namespace RepositoryPatternGenerator.MainDialog
                                         pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
                                 }
 
+
+                                GetCurrentSolution(out solution);
+                                var xmlRepDoc = new XmlDocument();
+                                var apiRepPath =
+                                    Path.Combine(
+                                        solution.Projects.First(o => o.Name == repositoryName)
+                                            .FilePath.Replace(repositoryName + ".csproj", ""), "App.Config");
+                                xmlRepDoc.Load(apiRepPath);
+                                var repConnectionStrings =
+                                    xmlRepDoc.DocumentElement.ChildNodes.Cast<XmlElement>()
+                                        .First(x => x.Name == "connectionStrings");
+                                if (repConnectionStrings != null)
+                                {
+                                    var repConnectionStringsNew = repConnectionStrings;
+
+                                    var csdataOld =
+                                        repConnectionStringsNew.ChildNodes.Cast<XmlElement>().First(x => x.Name == "add");
+
+                                    var csdataNew = csdataOld;
+
+                                    var csLine = csdataNew.GetAttribute("connectionString");
+                                    csLine = csLine.Replace(";App=", ";application name=");
+
+                                    string newLine = $"res://*/{edmxFolderName}.{edmxFileName}.csdl|res://*/{edmxFolderName}.{edmxFileName}.ssdl|res://*/{edmxFolderName}.{edmxFileName}.msl";
+                                    var startIndex = csLine.IndexOf("metadata=") + "metadata=".Length;
+                                    var endIndex = csLine.IndexOf(";provider=") - ";provider=".Length + 1;
+                                    var oldLine = csLine.Substring(startIndex, endIndex);
+                                    csLine = csLine.Replace(oldLine, newLine);
+
+                                    csdataNew.SetAttribute("connectionString", csLine);
+                                    repConnectionStringsNew.ReplaceChild(csdataNew, csdataOld);
+                                    xmlRepDoc.DocumentElement.ReplaceChild(repConnectionStringsNew, repConnectionStrings);
+
+                                    xmlRepDoc.Save(apiRepPath);
+                                }
+
+
                                 Send(p, 30, " - Data Model succesfully generated", Color.Green);
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
 
                                 Send(p, 30, " - Data Model not generated: ", Color.Red);
@@ -333,7 +371,8 @@ namespace RepositoryPatternGenerator.MainDialog
                                 var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                 var modelOk = true;
 
-                                if (!modelsDocument.Any(o => o.Name.Contains(edmxFileName.Replace(".edmx", ""))))
+                                //if (!modelsDocument.Any(o => o.Name.Contains(edmxFileName.Replace(".edmx", ""))))
+                                if (!modelsDocument.Any())
                                 {
                                     var res = 6;
                                     if (!edmxFolderEmpty)
@@ -384,6 +423,41 @@ namespace RepositoryPatternGenerator.MainDialog
                                             {
                                                 if (pi.Name == edmxFolderName)
                                                     pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
+                                            }
+
+                                            GetCurrentSolution(out solution);
+                                            var xmlRepDoc = new XmlDocument();
+                                            var apiRepPath =
+                                                Path.Combine(
+                                                    solution.Projects.First(o => o.Name == repositoryName)
+                                                        .FilePath.Replace(repositoryName + ".csproj", ""), "App.Config");
+                                            xmlRepDoc.Load(apiRepPath);
+                                            var repConnectionStrings =
+                                                xmlRepDoc.DocumentElement.ChildNodes.Cast<XmlElement>()
+                                                    .First(x => x.Name == "connectionStrings");
+                                            if (repConnectionStrings != null)
+                                            {
+                                                var repConnectionStringsNew = repConnectionStrings;
+
+                                                var csdataOld =
+                                                    repConnectionStringsNew.ChildNodes.Cast<XmlElement>().First(x => x.Name == "add");
+
+                                                var csdataNew = csdataOld;
+
+                                                var csLine = csdataNew.GetAttribute("connectionString");
+                                                csLine = csLine.Replace(";App=", ";application name=");
+
+                                                string newLine = $"res://*/{edmxFolderName}.{edmxFileName}.csdl|res://*/{edmxFolderName}.{edmxFileName}.ssdl|res://*/{edmxFolderName}.{edmxFileName}.msl";
+                                                var startIndex = csLine.IndexOf("metadata=") + "metadata=".Length;
+                                                var endIndex = csLine.IndexOf(";provider=");
+                                                var oldLine = csLine.Substring(startIndex, endIndex);
+                                                csLine = csLine.Replace(oldLine, newLine);
+
+                                                csdataNew.SetAttribute("connectionString", csLine);
+                                                repConnectionStringsNew.ReplaceChild(csdataNew, csdataOld);
+                                                xmlRepDoc.DocumentElement.ReplaceChild(repConnectionStringsNew, repConnectionStrings);
+
+                                                xmlRepDoc.Save(apiRepPath);
                                             }
 
                                             Send(p, 30, " - Data Model succesfully generated", Color.Green);

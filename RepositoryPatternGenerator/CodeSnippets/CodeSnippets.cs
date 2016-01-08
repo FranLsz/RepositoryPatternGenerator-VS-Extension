@@ -18,23 +18,23 @@ This extension was developed and designed by Francisco López Sánchez.
         public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, List<string> keys)
         {
             var propsString = "";
-            var toDataBaseString = "";
-            var fromDataBaseString = "";
-            var updateDataBaseString = "";
+            var toModelString = "";
+            var fromModelString = "";
+            var updateModelString = "";
             var keysString = "";
 
             foreach (var p in properties.Select((Entry, Index) => new { Entry, Index }))
             {
                 propsString += "        public " + p.Entry.Value + " " + p.Entry.Key + " { get; set; }";
-                fromDataBaseString += "            " + p.Entry.Key + " = model." + p.Entry.Key + ";";
-                updateDataBaseString += "            model." + p.Entry.Key + " = " + p.Entry.Key + ";";
-                toDataBaseString += "                " + p.Entry.Key + " = " + p.Entry.Key;
+                fromModelString += "            " + p.Entry.Key + " = model." + p.Entry.Key + ";";
+                updateModelString += "            model." + p.Entry.Key + " = " + p.Entry.Key + ";";
+                toModelString += "                " + p.Entry.Key + " = " + p.Entry.Key;
                 if (p.Index + 1 < properties.Count)
                 {
                     propsString += "\r\n";
-                    toDataBaseString += ",\r\n";
-                    fromDataBaseString += "\r\n";
-                    updateDataBaseString += "\r\n";
+                    toModelString += ",\r\n";
+                    fromModelString += "\r\n";
+                    updateModelString += "\r\n";
                 }
             }
 
@@ -56,22 +56,22 @@ namespace " + RepositoryName + @".ViewModels
     {
 " + propsString + @"
 
-        public " + className + @" ToDataBase()
+        public " + className + @" ToModel()
         {
             return new " + className + @"()
             {
-" + toDataBaseString + @"
+" + toModelString + @"
             };
         }
 
-        public void FromDataBase(" + className + @" model)
+        public void FromModel(" + className + @" model)
         {
-" + fromDataBaseString + @"
+" + fromModelString + @"
         }
 
-        public void UpdateDataBase(" + className + @" model)
+        public void UpdateModel(" + className + @" model)
         {
-" + updateDataBaseString + @"
+" + updateModelString + @"
         }
 
         public object[] GetKeys()
@@ -114,9 +114,9 @@ namespace " + RepositoryName + @".ViewModels
 {
     public interface IViewModel<TModel> where TModel : class
         {
-            TModel ToDataBase();
-            void FromDataBase(TModel model);
-            void UpdateDataBase(TModel model);
+            TModel ToModel();
+            void FromModel(TModel model);
+            void UpdateModel(TModel model);
             object[] GetKeys();
         }
 }";
@@ -157,7 +157,7 @@ namespace " + RepositoryName + @".Repository
             foreach (var model in DbSet)
             {
                 var vm = new TViewModel();
-                vm.FromDataBase(model);
+                vm.FromModel(model);
                 list.Add(vm);
             }
 
@@ -171,7 +171,7 @@ namespace " + RepositoryName + @".Repository
                 return default(TViewModel);
 
             var vm = new TViewModel();
-            vm.FromDataBase(data);
+            vm.FromModel(data);
 
             return vm;
         }
@@ -197,7 +197,7 @@ namespace " + RepositoryName + @".Repository
             foreach (var model in query)
             {
                 var obj = new TViewModel();
-                obj.FromDataBase(model);
+                obj.FromModel(model);
                 data.Add(obj);
             }
 
@@ -211,12 +211,12 @@ namespace " + RepositoryName + @".Repository
 
         public virtual TViewModel Add(TViewModel model)
         {
-            var m = model.ToDataBase();
+            var m = model.ToModel();
             var addedModel = DbSet.Add(m);
             try
             {
                 _context.SaveChanges();
-                model.FromDataBase(addedModel);
+                model.FromModel(addedModel);
                 return model;
             }
             catch (Exception)
@@ -228,7 +228,7 @@ namespace " + RepositoryName + @".Repository
         public virtual int Update(TViewModel model)
         {
             var obj = DbSet.Find(model.GetKeys());
-            model.UpdateDataBase(obj);
+            model.UpdateModel(obj);
             try
             {
                 return _context.SaveChanges();
