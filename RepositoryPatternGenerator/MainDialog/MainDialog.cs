@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using Microsoft.CodeAnalysis;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell.Interop;
-using RepositoryPatternGenerator.Utils;
+using RepositoryPatternGenerator.Helpers;
 using Solution = Microsoft.CodeAnalysis.Solution;
 using Thread = System.Threading.Thread;
 using VsShellUtilities = Microsoft.VisualStudio.Shell.VsShellUtilities;
@@ -27,9 +24,16 @@ namespace RepositoryPatternGenerator.MainDialog
     {
         private IServiceProvider ServiceProvider { get; }
 
+        private VisualStudioWorkspace CurrentWorkspace { get; set; }
+
+        private Solution CurrentSolution { get; set; }
+
+
         public MainDialog(IServiceProvider svc)
         {
             ServiceProvider = svc;
+            GetWorkspace();
+            RefreshCurrentSolution();
             InitializeComponent();
         }
 
@@ -37,14 +41,12 @@ namespace RepositoryPatternGenerator.MainDialog
         {
             MaximizeBox = false;
             MinimizeBox = false;
-            LabelVersion.Text = "Version " + Utils.Utils.GetManifestAttribute("Version");
+            LabelVersion.Text = "Version " + Helpers.Utils.GetManifestAttribute("Version");
         }
 
         private void NewGenerateBtn_Click(object sender, EventArgs e)
         {
-            Solution solution;
-            GetCurrentSolution(out solution);
-            if (solution.FilePath == null)
+            if (CurrentSolution.FilePath == null)
             {
                 SolutionNotFound.Visible = true;
                 return;
@@ -65,10 +67,9 @@ namespace RepositoryPatternGenerator.MainDialog
             }
             NFieldsRequired.Visible = false;
 
-            Solution solution;
-            GetCurrentSolution(out solution);
 
-            if (solution.Projects.Any(o => o.Name == NProjectNameTxt.Text))
+
+            if (CurrentSolution.Projects.Any(o => o.Name == NProjectNameTxt.Text))
             {
                 ProjectExist.Visible = true;
                 return;
@@ -99,16 +100,15 @@ namespace RepositoryPatternGenerator.MainDialog
 
         private void ExistingGenerateBtn_Click(object sender, EventArgs e)
         {
-            Solution solution;
-            GetCurrentSolution(out solution);
-            if (solution.FilePath == null)
+
+            if (CurrentSolution.FilePath == null)
             {
                 SolutionNotFound.Visible = true;
                 return;
             }
             SolutionNotFound.Visible = false;
 
-            if (!solution.Projects.Any())
+            if (!CurrentSolution.Projects.Any())
             {
                 SolutionEmpty.Visible = true;
                 return;
@@ -117,7 +117,7 @@ namespace RepositoryPatternGenerator.MainDialog
 
             PreEProcessPanel.Visible = true;
 
-            foreach (var pr in solution.Projects)
+            foreach (var pr in CurrentSolution.Projects)
             {
                 EProjectNameCbx.Items.Add(pr.Name);
             }
@@ -180,17 +180,27 @@ namespace RepositoryPatternGenerator.MainDialog
             p.Report(new Tuple<int, string, Color>(progress, text, Color.Black));
         }
 
+        private bool ApplyChanges(Solution solution)
+        {
+            var applied = CurrentWorkspace.TryApplyChanges(solution);
 
+            if (!applied) return false;
+
+            CurrentSolution = CurrentWorkspace.CurrentSolution;
+            return true;
+        }
 
         private async Task Generate(Dictionary<string, object> options, IProgress<Tuple<int, string, Color>> p)
         {
             await Task.Run(async () =>
             {
+
                 var processType = options["ProcessType"].ToString();
                 var repositoryName = options["RepositoryProjectName"].ToString();
                 var edmxFolderName = options["EdmxFolderName"].ToString();
                 var edmxFileName = options["EdmxFileName"].ToString();
                 var edmxFolderEmpty = false;
+
                 if (options.ContainsKey("EdmxFolderEmpty"))
                     edmxFolderEmpty = (bool)options["EdmxFolderEmpty"];
 
@@ -198,14 +208,14 @@ namespace RepositoryPatternGenerator.MainDialog
 
                 // WORKSPACE LOAD
                 Send(p, 0, " - Trying to get workspace");
-                var workspace = GetWorkspace();
+                GetWorkspace();
                 Send(p, 5, " - Workspace loaded", Color.Green);
 
                 // SOLUTION LOAD
                 Send(p, 5, " - Trying to get current solution");
-                Solution solution;
-                GetCurrentSolution(out solution);
-                if (solution.FilePath == null)
+
+
+                if (CurrentSolution.FilePath == null)
                 {
                     Send(p, 5, " - Solution not found", Color.Red);
                 }
@@ -253,6 +263,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                     if (dteProjects.Item(i).Name == repositoryName)
                                         dteProject = dteProjects.Item(i);
                                 }
+                                // delete default Class1.cs
                                 foreach (ProjectItem pi in dteProject.ProjectItems)
                                 {
                                     if (pi.Name != "Class1.cs") continue;
@@ -290,12 +301,11 @@ namespace RepositoryPatternGenerator.MainDialog
                                         pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
                                 }
 
-
-                                GetCurrentSolution(out solution);
+                                RefreshCurrentSolution();
                                 var xmlRepDoc = new XmlDocument();
                                 var apiRepPath =
                                     Path.Combine(
-                                        solution.Projects.First(o => o.Name == repositoryName)
+                                        CurrentSolution.Projects.First(o => o.Name == repositoryName)
                                             .FilePath.Replace(repositoryName + ".csproj", ""), "App.Config");
                                 xmlRepDoc.Load(apiRepPath);
                                 var repConnectionStrings =
@@ -340,10 +350,9 @@ namespace RepositoryPatternGenerator.MainDialog
                             Send(p, 30, " - Project not created", Color.Red);
                         }
                     }
-
-                    GetCurrentSolution(out solution);
                     Send(p, 30, " - Trying to get the '" + repositoryName + "' project");
-                    var project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+                    RefreshCurrentSolution();
+                    var project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                     if (project == null)
                     {
@@ -367,7 +376,7 @@ namespace RepositoryPatternGenerator.MainDialog
 
                             try
                             {
-                                var documents = solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                                var documents = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                                 var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                 var modelOk = true;
 
@@ -425,11 +434,11 @@ namespace RepositoryPatternGenerator.MainDialog
                                                     pi.ProjectItems.AddFromTemplate(pathAdo, edmxFileName);
                                             }
 
-                                            GetCurrentSolution(out solution);
+                                            RefreshCurrentSolution();
                                             var xmlRepDoc = new XmlDocument();
                                             var apiRepPath =
                                                 Path.Combine(
-                                                    solution.Projects.First(o => o.Name == repositoryName)
+                                                    CurrentSolution.Projects.First(o => o.Name == repositoryName)
                                                         .FilePath.Replace(repositoryName + ".csproj", ""), "App.Config");
                                             xmlRepDoc.Load(apiRepPath);
                                             var repConnectionStrings =
@@ -479,8 +488,8 @@ namespace RepositoryPatternGenerator.MainDialog
                                 }
                                 if (modelOk)
                                 {
-                                    GetCurrentSolution(out solution);
-                                    project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+                                    RefreshCurrentSolution();
+                                    project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                                     Send(p, 30, " - Project integrity checked",
                                         Color.Green);
@@ -508,7 +517,7 @@ namespace RepositoryPatternGenerator.MainDialog
                                     Send(p, 30, " - File EntityRepository generated", Color.Green);
 
                                     // var applied = true;
-                                    workspace.TryApplyChanges(entityRepository.Project.Solution);
+                                    ApplyChanges(entityRepository.Project.Solution);
                                     if (false)
                                     {
                                         //Send(p,worker, 30, " - Files cant be loaded on current solution", Color.Red);
@@ -516,10 +525,10 @@ namespace RepositoryPatternGenerator.MainDialog
                                     else
                                     {
 
-                                        GetCurrentSolution(out solution);
+                                        RefreshCurrentSolution();
 
                                         documents =
-                                            solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                                            CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                                         ;
                                         modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                         /*if (!modelsDocument.Any())
@@ -625,10 +634,9 @@ namespace RepositoryPatternGenerator.MainDialog
                                         }
                                         //END PRIMARY KEYS RASTREATOR
 
-                                        GetCurrentSolution(out solution);
-
+                                        RefreshCurrentSolution();
                                         documents =
-                                            solution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
+                                            CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                                         modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                                         var count = modelsDocument.Count();
                                         foreach (var d in modelsDocument)
@@ -681,12 +689,12 @@ namespace RepositoryPatternGenerator.MainDialog
                                                 var code = CodeSnippets.CodeSnippets.GenerateClassViewModel(className,
                                                     propsList, controlPkProp[className]);
 
-                                                GetCurrentSolution(out solution);
-                                                project = solution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+                                                RefreshCurrentSolution();
+                                                project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
 
                                                 var vm = project.AddDocument(className + "ViewModel", code,
                                                     new[] { repositoryName, "ViewModels" });
-                                                workspace.TryApplyChanges(vm.Project.Solution);
+                                                ApplyChanges(vm.Project.Solution);
                                                 Send(p, 75,
                                                     $" - {className}ViewModel generated, primary key: {controlPkProp[className].Aggregate((a, b) => a + ", " + b)}",
                                                     Color.Green);
@@ -715,10 +723,10 @@ namespace RepositoryPatternGenerator.MainDialog
         }
 
 
-        private VisualStudioWorkspace GetWorkspace()
+        private void GetWorkspace()
         {
             IComponentModel componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
-            return componentModel.GetService<Microsoft.VisualStudio.LanguageServices.VisualStudioWorkspace>();
+            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
         }
 
         private string GetHour()
@@ -726,9 +734,12 @@ namespace RepositoryPatternGenerator.MainDialog
             return DateTime.Now.ToString("HH:mm:ss");
         }
 
-        private void GetCurrentSolution(out Solution solution)
+        private void RefreshCurrentSolution()
         {
-            solution = GetWorkspace().CurrentSolution;
+            if (CurrentWorkspace == null)
+                GetWorkspace();
+            else
+                CurrentSolution = CurrentWorkspace.CurrentSolution;
         }
 
         private void LogBox_TextChanged(object sender, EventArgs e)
