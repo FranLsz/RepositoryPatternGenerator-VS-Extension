@@ -69,7 +69,7 @@ namespace " + RepositoryName + @".ViewModels
 " + fromModelString + @"
         }
 
-        public void UpdateModel(" + className + @" model)
+        public void UpdateFromModel(" + className + @" model)
         {
 " + updateModelString + @"
         }
