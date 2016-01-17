@@ -272,3 +272,78 @@ namespace " + RepositoryName + @".Repository
 
     }
 }
+/* 
+using System.Linq.Expressions;
+using System.Reflection;
+
+namespace Repository.Helpers
+{
+    public class ExpressionHelper : ExpressionVisitor
+    {
+        private MemberExpression m_MemberExpression;
+
+        public MemberExpression GetPropertyAccessExpression(Expression expression)
+        {
+            m_MemberExpression = null;
+
+            Visit(expression);
+
+            return m_MemberExpression;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            var property = node.Member as PropertyInfo;
+
+            if (property != null)
+                m_MemberExpression = node;
+
+            return base.VisitMember(node);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+        // ---------------
+        public IEnumerable<TModel> GetSortedSpecific<TSortedBy>(Expression<Func<TModel, bool>> where, Expression<Func<TModel, TSortedBy>> order, int skip, int take)
+        {
+            var query = DbSet.Where(where);
+            return query.OrderBy(order).Skip(skip).Take(take).ToList();
+        }
+
+        public Expression<Func<TModel, TNewKey>> Convert<TNewKey>(MemberExpression expression, ReadOnlyCollection<ParameterExpression> parameter_expressions)
+        {
+            return Expression.Lambda<Func<TModel, TNewKey>>(expression, parameter_expressions);
+        }
+        // ---------------
+        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
+        {
+            var propertyAccessExpression = new ExpressionHelper().GetPropertyAccessExpression(orderBy);
+            var propertyInfo = (PropertyInfo)propertyAccessExpression.Member;
+
+            var covertMethod = this.GetType().GetMethod("Convert").MakeGenericMethod(propertyInfo.PropertyType);
+            var getSortedMethod = this.GetType().GetMethod("GetSortedSpecific").MakeGenericMethod(propertyInfo.PropertyType);
+
+            var newExpression = covertMethod.Invoke(this, new object[] { propertyAccessExpression, orderBy.Parameters });
+            var dataSorted = (IEnumerable<TModel>)getSortedMethod.Invoke(this, new object[] { where, newExpression, skip, take });
+
+            var data = new List<TViewModel>();
+            foreach (var model in dataSorted)
+            {
+                var obj = new TViewModel();
+                obj.FromModel(model);
+                data.Add(obj);
+            }
+
+            return data;
+        }
+
+    */
