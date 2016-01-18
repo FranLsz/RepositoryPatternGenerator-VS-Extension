@@ -516,8 +516,15 @@ namespace RepositoryPatternGenerator.MainDialog
                                         new[] { repositoryName, "Repository" });
                                     Send(p, 30, " - File EntityRepository generated", Color.Green);
 
+                                    Send(p, 30, " - Trying to generate ExpressionHelper class");
+                                    var helperRepository = entityRepository.Project.AddDocument("ExpressionHelper",
+                                        CodeSnippets.CodeSnippets.GetExpressionHelper(),
+                                        new[] { repositoryName, "Helpers" });
+                                    Send(p, 30, " - File ExpressionHelper generated", Color.Green);
+
+
                                     // var applied = true;
-                                    ApplyChanges(entityRepository.Project.Solution);
+                                    ApplyChanges(helperRepository.Project.Solution);
                                     if (false)
                                     {
                                         //Send(p,worker, 30, " - Files cant be loaded on current solution", Color.Red);

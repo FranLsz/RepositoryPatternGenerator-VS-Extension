@@ -15,7 +15,8 @@ This extension was developed and designed by Francisco López Sánchez.
         public static string RepositoryName = "Repository";
         public static string ModelsName = "Models";
 
-        public static string GenerateClassViewModel(string className, Dictionary<string, string> properties, List<string> keys)
+        public static string GenerateClassViewModel(string className, Dictionary<string, string> properties,
+            List<string> keys)
         {
             var propsString = "";
             var toModelString = "";
@@ -46,7 +47,7 @@ This extension was developed and designed by Francisco López Sánchez.
             }
 
             var classViewModel =
-@"" + Header + @"
+                @"" + Header + @"
 using " + RepositoryName + "." + ModelsName + @";
 using System;
 
@@ -69,7 +70,7 @@ namespace " + RepositoryName + @".ViewModels
 " + fromModelString + @"
         }
 
-        public void UpdateFromModel(" + className + @" model)
+        public void UpdateModel(" + className + @" model)
         {
 " + updateModelString + @"
         }
@@ -83,6 +84,7 @@ namespace " + RepositoryName + @".ViewModels
 
             return classViewModel;
         }
+
         public static string GetIRepository()
         {
             return @"" + Header + @"
@@ -97,7 +99,7 @@ namespace " + RepositoryName + @".Repository
     {
         ICollection<TViewModel> Get();
         TViewModel Get(params object[] keys);
-        ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip = null, int? take = null, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null);
+        ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null, int? skip = null, int? take = null);
         int Count(Expression<Func<TModel, bool>> where = null);        
         TViewModel Add(TViewModel model);
         int Update(TViewModel model);
@@ -131,6 +133,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using " + RepositoryName + @".ViewModels;
+using " + RepositoryName + @".Helpers;
+using System.Reflection;
+using System.Collections.ObjectModel;
 
 namespace " + RepositoryName + @".Repository
 {
@@ -176,17 +181,24 @@ namespace " + RepositoryName + @".Repository
             return vm;
         }
 
-        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
+        public Expression<Func<TModel, TNewKey>> Convert<TNewKey>(MemberExpression expression, ReadOnlyCollection<ParameterExpression> parameterExpressions)
         {
-            var data = new List<TViewModel>();
+            return Expression.Lambda<Func<TModel, TNewKey>>(expression, parameterExpressions);
+        }
+
+        public IQueryable<TModel> GetSpecific<TOrderBy>(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, TOrderBy>> orderBy = null, bool? orderAsc = null)
+        {
             var query = DbSet.Where(where);
 
-            if (orderBy != null && orderAsc == null)
-                query = query.OrderBy(orderBy).AsQueryable();
-            else if (orderBy != null && orderAsc.Value)
-                query = query.OrderBy(orderBy).AsQueryable();
-            else if (orderBy != null)
-                query = query.OrderByDescending(orderBy).AsQueryable();
+            if (orderBy == null)
+                return query;
+
+            if (orderAsc == null)
+                query = query.OrderBy(orderBy);
+            else if (orderAsc.Value)
+                query = query.OrderBy(orderBy);
+            else
+                query = query.OrderByDescending(orderBy);
 
             if (skip != null)
                 query = query.Skip(skip.Value);
@@ -194,7 +206,30 @@ namespace " + RepositoryName + @".Repository
             if (take != null)
                 query = query.Take(take.Value);
 
-            foreach (var model in query)
+            return query;
+        }
+
+        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null, int? skip = null, int? take = null)
+        {
+            IQueryable<TModel> queryData;
+
+            if (orderBy != null)
+            {
+                var propertyAccessExpression = new ExpressionHelper().GetPropertyAccessExpression(orderBy);
+                var propertyInfo = (PropertyInfo)propertyAccessExpression.Member;
+
+                var covertMethod = GetType().GetMethod(""Convert"").MakeGenericMethod(propertyInfo.PropertyType);
+                var getOrderedMethod = GetType().GetMethod(""GetSpecific"").MakeGenericMethod(propertyInfo.PropertyType);
+
+                var newExpression = covertMethod.Invoke(this, new object[] { propertyAccessExpression, orderBy.Parameters });
+                queryData = (IQueryable<TModel>)getOrderedMethod.Invoke(this, new[] { where, skip, take, newExpression, orderAsc });
+            }
+            else
+                queryData = GetSpecific<object>(where, null, null);
+
+            var data = new List<TViewModel>();
+
+            foreach (var model in queryData)
             {
                 var obj = new TViewModel();
                 obj.FromModel(model);
@@ -270,9 +305,9 @@ namespace " + RepositoryName + @".Repository
 }";
         }
 
-    }
-}
-/* 
+        public static string GetExpressionHelper()
+        {
+            var code = @"" + Header + @"
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -280,15 +315,15 @@ namespace Repository.Helpers
 {
     public class ExpressionHelper : ExpressionVisitor
     {
-        private MemberExpression m_MemberExpression;
+        private MemberExpression _memberExpression;
 
         public MemberExpression GetPropertyAccessExpression(Expression expression)
         {
-            m_MemberExpression = null;
+            _memberExpression = null;
 
             Visit(expression);
 
-            return m_MemberExpression;
+            return _memberExpression;
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -296,54 +331,13 @@ namespace Repository.Helpers
             var property = node.Member as PropertyInfo;
 
             if (property != null)
-                m_MemberExpression = node;
+                _memberExpression = node;
 
             return base.VisitMember(node);
         }
     }
+}";
+            return code;
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-        // ---------------
-        public IEnumerable<TModel> GetSortedSpecific<TSortedBy>(Expression<Func<TModel, bool>> where, Expression<Func<TModel, TSortedBy>> order, int skip, int take)
-        {
-            var query = DbSet.Where(where);
-            return query.OrderBy(order).Skip(skip).Take(take).ToList();
-        }
-
-        public Expression<Func<TModel, TNewKey>> Convert<TNewKey>(MemberExpression expression, ReadOnlyCollection<ParameterExpression> parameter_expressions)
-        {
-            return Expression.Lambda<Func<TModel, TNewKey>>(expression, parameter_expressions);
-        }
-        // ---------------
-        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where, int? skip, int? take, Expression<Func<TModel, object>> orderBy = null, bool? orderAsc = null)
-        {
-            var propertyAccessExpression = new ExpressionHelper().GetPropertyAccessExpression(orderBy);
-            var propertyInfo = (PropertyInfo)propertyAccessExpression.Member;
-
-            var covertMethod = this.GetType().GetMethod("Convert").MakeGenericMethod(propertyInfo.PropertyType);
-            var getSortedMethod = this.GetType().GetMethod("GetSortedSpecific").MakeGenericMethod(propertyInfo.PropertyType);
-
-            var newExpression = covertMethod.Invoke(this, new object[] { propertyAccessExpression, orderBy.Parameters });
-            var dataSorted = (IEnumerable<TModel>)getSortedMethod.Invoke(this, new object[] { where, newExpression, skip, take });
-
-            var data = new List<TViewModel>();
-            foreach (var model in dataSorted)
-            {
-                var obj = new TViewModel();
-                obj.FromModel(model);
-                data.Add(obj);
-            }
-
-            return data;
-        }
-
-    */

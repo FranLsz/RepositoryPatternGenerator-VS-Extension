@@ -29,27 +29,27 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainDialog));
-            System.Windows.Forms.TreeNode treeNode78 = new System.Windows.Forms.TreeNode("IRepository (Interface)");
-            System.Windows.Forms.TreeNode treeNode79 = new System.Windows.Forms.TreeNode("EntityRepository (Class)");
-            System.Windows.Forms.TreeNode treeNode80 = new System.Windows.Forms.TreeNode("Repository (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode78,
-            treeNode79});
-            System.Windows.Forms.TreeNode treeNode81 = new System.Windows.Forms.TreeNode("IViewModel (Interface)");
-            System.Windows.Forms.TreeNode treeNode82 = new System.Windows.Forms.TreeNode("Model1ViewModel (Class)");
-            System.Windows.Forms.TreeNode treeNode83 = new System.Windows.Forms.TreeNode("Model2ViewModel (Class)");
-            System.Windows.Forms.TreeNode treeNode84 = new System.Windows.Forms.TreeNode("ViewModels (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode81,
-            treeNode82,
-            treeNode83});
-            System.Windows.Forms.TreeNode treeNode85 = new System.Windows.Forms.TreeNode("Model1");
-            System.Windows.Forms.TreeNode treeNode86 = new System.Windows.Forms.TreeNode("Model2");
-            System.Windows.Forms.TreeNode treeNode87 = new System.Windows.Forms.TreeNode("Models (Folder)", new System.Windows.Forms.TreeNode[] {
-            treeNode85,
-            treeNode86});
-            System.Windows.Forms.TreeNode treeNode88 = new System.Windows.Forms.TreeNode("Repository (Project)", new System.Windows.Forms.TreeNode[] {
-            treeNode80,
-            treeNode84,
-            treeNode87});
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("IRepository (Interface)");
+            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("EntityRepository (Class)");
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Repository (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode12,
+            treeNode13});
+            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("IViewModel (Interface)");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Model1ViewModel (Class)");
+            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("Model2ViewModel (Class)");
+            System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("ViewModels (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode15,
+            treeNode16,
+            treeNode17});
+            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Model1");
+            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("Model2");
+            System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("Models (Folder)", new System.Windows.Forms.TreeNode[] {
+            treeNode19,
+            treeNode20});
+            System.Windows.Forms.TreeNode treeNode22 = new System.Windows.Forms.TreeNode("Repository (Project)", new System.Windows.Forms.TreeNode[] {
+            treeNode14,
+            treeNode18,
+            treeNode21});
             this.Logo = new System.Windows.Forms.PictureBox();
             this.Header1 = new System.Windows.Forms.Label();
             this.Header2 = new System.Windows.Forms.Label();
@@ -62,6 +62,7 @@
             this.GitHubLink = new System.Windows.Forms.PictureBox();
             this.SettingsBtn = new System.Windows.Forms.PictureBox();
             this.SettingsPanel = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
             this.SettingsRequiredField = new System.Windows.Forms.Label();
             this.LabelVersion = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -88,6 +89,7 @@
             this.SolutionEmpty = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.PreEProcessPanel = new System.Windows.Forms.Panel();
+            this.EdmxFolderEmpty = new System.Windows.Forms.CheckBox();
             this.EFieldRequired = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.EModelFolder = new System.Windows.Forms.TextBox();
@@ -96,8 +98,7 @@
             this.EProjectNameCbx = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.EGenerateBtn = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.EdmxFolderEmpty = new System.Windows.Forms.CheckBox();
+            this.label8 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TwitterLink)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.LinkedInLink)).BeginInit();
@@ -269,6 +270,15 @@
             this.SettingsPanel.TabIndex = 18;
             this.SettingsPanel.Visible = false;
             // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(36, 94);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(284, 45);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "* This folder is added when you create new repository project. Contains EDMX mode" +
+    "l.";
+            // 
             // SettingsRequiredField
             // 
             this.SettingsRequiredField.AutoSize = true;
@@ -341,37 +351,37 @@
             this.RepositoryTree.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.RepositoryTree.Location = new System.Drawing.Point(507, 32);
             this.RepositoryTree.Name = "RepositoryTree";
-            treeNode78.ForeColor = System.Drawing.Color.Green;
-            treeNode78.Name = "IRepository";
-            treeNode78.Text = "IRepository (Interface)";
-            treeNode79.ForeColor = System.Drawing.Color.Green;
-            treeNode79.Name = "EntityRepository";
-            treeNode79.Text = "EntityRepository (Class)";
-            treeNode80.ForeColor = System.Drawing.Color.Green;
-            treeNode80.Name = "Repository";
-            treeNode80.Text = "Repository (Folder)";
-            treeNode81.ForeColor = System.Drawing.Color.Green;
-            treeNode81.Name = "IViewModel";
-            treeNode81.Text = "IViewModel (Interface)";
-            treeNode82.ForeColor = System.Drawing.Color.Green;
-            treeNode82.Name = "ModelViewModel";
-            treeNode82.Text = "Model1ViewModel (Class)";
-            treeNode83.ForeColor = System.Drawing.Color.Green;
-            treeNode83.Name = "Node7";
-            treeNode83.Text = "Model2ViewModel (Class)";
-            treeNode84.ForeColor = System.Drawing.Color.Green;
-            treeNode84.Name = "ViewModel";
-            treeNode84.Text = "ViewModels (Folder)";
-            treeNode85.Name = "Model1";
-            treeNode85.Text = "Model1";
-            treeNode86.Name = "Model2";
-            treeNode86.Text = "Model2";
-            treeNode87.Name = "Models";
-            treeNode87.Text = "Models (Folder)";
-            treeNode88.Name = "Repository_project";
-            treeNode88.Text = "Repository (Project)";
+            treeNode12.ForeColor = System.Drawing.Color.Green;
+            treeNode12.Name = "IRepository";
+            treeNode12.Text = "IRepository (Interface)";
+            treeNode13.ForeColor = System.Drawing.Color.Green;
+            treeNode13.Name = "EntityRepository";
+            treeNode13.Text = "EntityRepository (Class)";
+            treeNode14.ForeColor = System.Drawing.Color.Green;
+            treeNode14.Name = "Repository";
+            treeNode14.Text = "Repository (Folder)";
+            treeNode15.ForeColor = System.Drawing.Color.Green;
+            treeNode15.Name = "IViewModel";
+            treeNode15.Text = "IViewModel (Interface)";
+            treeNode16.ForeColor = System.Drawing.Color.Green;
+            treeNode16.Name = "ModelViewModel";
+            treeNode16.Text = "Model1ViewModel (Class)";
+            treeNode17.ForeColor = System.Drawing.Color.Green;
+            treeNode17.Name = "Node7";
+            treeNode17.Text = "Model2ViewModel (Class)";
+            treeNode18.ForeColor = System.Drawing.Color.Green;
+            treeNode18.Name = "ViewModel";
+            treeNode18.Text = "ViewModels (Folder)";
+            treeNode19.Name = "Model1";
+            treeNode19.Text = "Model1";
+            treeNode20.Name = "Model2";
+            treeNode20.Text = "Model2";
+            treeNode21.Name = "Models";
+            treeNode21.Text = "Models (Folder)";
+            treeNode22.Name = "Repository_project";
+            treeNode22.Text = "Repository (Project)";
             this.RepositoryTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode88});
+            treeNode22});
             this.RepositoryTree.ShowPlusMinus = false;
             this.RepositoryTree.Size = new System.Drawing.Size(253, 246);
             this.RepositoryTree.TabIndex = 9;
@@ -559,6 +569,7 @@
             // 
             // MainPanel
             // 
+            this.MainPanel.Controls.Add(this.label8);
             this.MainPanel.Controls.Add(this.SolutionEmpty);
             this.MainPanel.Controls.Add(this.label1);
             this.MainPanel.Controls.Add(this.NewGenerateBtn);
@@ -603,6 +614,16 @@
             this.PreEProcessPanel.Size = new System.Drawing.Size(811, 302);
             this.PreEProcessPanel.TabIndex = 24;
             this.PreEProcessPanel.Visible = false;
+            // 
+            // EdmxFolderEmpty
+            // 
+            this.EdmxFolderEmpty.AutoSize = true;
+            this.EdmxFolderEmpty.Location = new System.Drawing.Point(272, 166);
+            this.EdmxFolderEmpty.Name = "EdmxFolderEmpty";
+            this.EdmxFolderEmpty.Size = new System.Drawing.Size(252, 17);
+            this.EdmxFolderEmpty.TabIndex = 23;
+            this.EdmxFolderEmpty.Text = "This folder is empty, create an .EDMX model.";
+            this.EdmxFolderEmpty.UseVisualStyleBackColor = true;
             // 
             // EFieldRequired
             // 
@@ -699,24 +720,13 @@
             this.EGenerateBtn.UseVisualStyleBackColor = false;
             this.EGenerateBtn.Click += new System.EventHandler(this.EGenerateBtn_Click);
             // 
-            // label2
+            // label8
             // 
-            this.label2.Location = new System.Drawing.Point(36, 94);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(284, 45);
-            this.label2.TabIndex = 18;
-            this.label2.Text = "* This folder is added when you create new repository project. Contains EDMX mode" +
-    "l.";
-            // 
-            // EdmxFolderEmpty
-            // 
-            this.EdmxFolderEmpty.AutoSize = true;
-            this.EdmxFolderEmpty.Location = new System.Drawing.Point(272, 166);
-            this.EdmxFolderEmpty.Name = "EdmxFolderEmpty";
-            this.EdmxFolderEmpty.Size = new System.Drawing.Size(252, 17);
-            this.EdmxFolderEmpty.TabIndex = 23;
-            this.EdmxFolderEmpty.Text = "This folder is empty, create an .EDMX model.";
-            this.EdmxFolderEmpty.UseVisualStyleBackColor = true;
+            this.label8.Location = new System.Drawing.Point(81, 194);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(200, 28);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "*The project will be added to current  solution";
             // 
             // MainDialog
             // 
@@ -725,11 +735,11 @@
             this.ClientSize = new System.Drawing.Size(824, 586);
             this.Controls.Add(this.SettingsBtn);
             this.Controls.Add(this.GoBackBtn);
+            this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.SettingsPanel);
             this.Controls.Add(this.PreEProcessPanel);
             this.Controls.Add(this.PreNProcessPanel);
             this.Controls.Add(this.ProcessPanel);
-            this.Controls.Add(this.MainPanel);
             this.Controls.Add(this.Header1);
             this.Controls.Add(this.Header2);
             this.Controls.Add(this.Logo);
@@ -819,5 +829,6 @@
         private System.Windows.Forms.Label SolutionEmpty;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox EdmxFolderEmpty;
+        private System.Windows.Forms.Label label8;
     }
 }
