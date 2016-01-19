@@ -116,7 +116,7 @@ namespace RepositoryPatternGenerator.MainDialog
             SolutionEmpty.Visible = false;
 
             PreEProcessPanel.Visible = true;
-
+            EProjectNameCbx.Items.Clear();
             foreach (var pr in CurrentSolution.Projects)
             {
                 EProjectNameCbx.Items.Add(pr.Name);
@@ -435,11 +435,22 @@ namespace RepositoryPatternGenerator.MainDialog
                                             }
 
                                             RefreshCurrentSolution();
+
                                             var xmlRepDoc = new XmlDocument();
+                                            var confFile = "";
+                                            if (processType == "Create")
+                                            {
+                                                confFile = "App.Confing";
+                                            }
+                                            else if (processType == "Add")
+                                            {
+                                                confFile = "Web.Config";
+                                            }
+
                                             var apiRepPath =
                                                 Path.Combine(
                                                     CurrentSolution.Projects.First(o => o.Name == repositoryName)
-                                                        .FilePath.Replace(repositoryName + ".csproj", ""), "App.Config");
+                                                        .FilePath.Replace(repositoryName + ".csproj", ""), confFile);
                                             xmlRepDoc.Load(apiRepPath);
                                             var repConnectionStrings =
                                                 xmlRepDoc.DocumentElement.ChildNodes.Cast<XmlElement>()
@@ -831,7 +842,15 @@ namespace RepositoryPatternGenerator.MainDialog
             }
         }
 
+        private void NBackToMenu_Click(object sender, EventArgs e)
+        {
+            PreNProcessPanel.Visible = false;
+        }
 
+        private void EBackToMenu_Click(object sender, EventArgs e)
+        {
+            PreEProcessPanel.Visible = false;
+        }
     }
 }
 

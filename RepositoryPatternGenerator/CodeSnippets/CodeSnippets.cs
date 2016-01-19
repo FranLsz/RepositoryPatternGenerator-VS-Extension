@@ -311,7 +311,7 @@ namespace " + RepositoryName + @".Repository
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Repository.Helpers
+namespace " + RepositoryName + @".Helpers
 {
     public class ExpressionHelper : ExpressionVisitor
     {
