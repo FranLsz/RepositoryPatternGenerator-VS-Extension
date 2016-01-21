@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using RepositoryPatternGenerator.Helpers;
@@ -17,10 +18,32 @@ This extension was developed and designed by Francisco López Sánchez.
         public static string RepositoryName = "Repository";
         public static string ModelsName = "Models";
         public static string ViewModelsProjectName = "DataModel";
+        public static string MainProjectName = "MainProject";
+
+        public static string GetModelRepository(string modelName)
+        {
+            return @"" + Header + @"
+using System.Data.Entity;
+using " + RepositoryName + @".Adapter;
+using " + RepositoryName + @".Model;
+using " + RepositoryName + @".Repository;
+using " + ViewModelsProjectName + @".ViewModel;
+
+namespace " + RepositoryName + @".Repository
+{
+    public class " + modelName + @"Repository : EntityFrameworkRepository<" + modelName + @", " + modelName + @"ViewModel, " + modelName + @"Adapter>
+    {
+        public " + modelName + @"Repository(DbContext context) : base(context) { }
+    }
+}
+";
+        }
+
 
         public static string GetViewModel(string modelName, Dictionary<string, string> modelProps)
         {
             var props = modelProps.Aggregate("", (current, mp) => current + $"        public {mp.Value} {mp.Key} {{ get; set; }}\r\n");
+            props = Utils.ReplaceLastOccurrence(props, "\r\n", "");
 
             var code = @"" + Header + @"
 using System;

@@ -14,6 +14,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell.Interop;
+using NuGet;
+using NuGet.VisualStudio;
 using RepositoryPatternGenerator.Helpers;
 using Project = Microsoft.CodeAnalysis.Project;
 using Solution = Microsoft.CodeAnalysis.Solution;
@@ -203,7 +205,7 @@ namespace RepositoryPatternGenerator.MainDialog
               var edmxFileName = "Model";
               var edmxFolderName = "Model";
               var dataModelProjectName = "DataModel";
-
+              var _onlineNugetPackageLocation = "https://packages.nuget.org/api/v2";
               Send(p, 0, " ---RPG process started---");
               // WORKSPACE LOAD
               Send(p, 0, " - Trying to get workspace");
@@ -433,7 +435,12 @@ namespace RepositoryPatternGenerator.MainDialog
                                   CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName).Documents;
                               var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                               Project portableProject = null;
+                              Project mainProject = null;
                               Send(p, 75, " - Trying to generate Adapters and ViewModels from Models");
+
+                              var mainProjectName =
+                                  CurrentSolution.Projects.FirstOrDefault(
+                                      o => o.Name != repositoryName && o.Name != dataModelProjectName).Name;
 
                               foreach (var d in modelsDocument)
                               {
@@ -464,26 +471,30 @@ namespace RepositoryPatternGenerator.MainDialog
                                           modelProps.Add(name);
                                           modelPropsType.Add(name, type);
                                       }
+                                      CodeSnippets.CodeSnippetsV2.MainProjectName = mainProjectName;
 
                                       var code = CodeSnippets.CodeSnippetsV2.GetModelAdapter(modelName, modelProps);
                                       var portableCode = CodeSnippets.CodeSnippetsV2.GetViewModel(modelName, modelPropsType);
-                                      //qwe
+                                      var mainProjectCode = CodeSnippets.CodeSnippetsV2.GetModelRepository(modelName);
+
+
+                                      RefreshCurrentSolution();
+                                      mainProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == mainProjectName);
+                                      var md = mainProject.AddDocument(modelName + "Repository", mainProjectCode, new[] { mainProjectName, "Repository" });
+                                      ApplyChanges(md.Project.Solution);
+                                      Send(p, 75, $" - {modelName}Repository generated", Color.Green);
+
+
                                       RefreshCurrentSolution();
                                       project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
-
-                                      var ad = project.AddDocument(modelName + "Adapter", code,
-                                          new[] { repositoryName, "Adapter" });
-
+                                      var ad = project.AddDocument(modelName + "Adapter", code, new[] { repositoryName, "Adapter" });
                                       ApplyChanges(ad.Project.Solution);
-                                      RefreshCurrentSolution();
-
-                                      portableProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == dataModelProjectName);
-
                                       Send(p, 75, $" - {modelName}Adapter generated", Color.Green);
 
-                                      var vm = portableProject.AddDocument(modelName + "ViewModel", portableCode,
-                                         new[] { dataModelProjectName, "ViewModel" });
 
+                                      RefreshCurrentSolution();
+                                      portableProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == dataModelProjectName);
+                                      var vm = portableProject.AddDocument(modelName + "ViewModel", portableCode, new[] { dataModelProjectName, "ViewModel" });
                                       ApplyChanges(vm.Project.Solution);
                                       Send(p, 75, $" - {modelName}ViewModel generated", Color.Green);
 
@@ -494,12 +505,53 @@ namespace RepositoryPatternGenerator.MainDialog
                               RefreshCurrentSolution();
                               project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
                               portableProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == dataModelProjectName);
-                              var projectWithReference =project.AddProjectReference(new ProjectReference(portableProject.Id));
-                              var res = ApplyChanges(projectWithReference.Solution);
-                              if (res)
+                              var projectWithReference = project.AddProjectReference(new ProjectReference(portableProject.Id));
+                              if (ApplyChanges(projectWithReference.Solution))
                                   Send(p, 85, " - Reference added successfully", Color.Green);
                               else
                                   Send(p, 85, " - Can't add the reference, you must add it manually after process end", Color.Red);
+
+
+                              Send(p, 90, " - Trying to reference '" + dataModelProjectName + "' and '" + repositoryName + "' on '" + mainProjectName + "'");
+                              RefreshCurrentSolution();
+                              project = CurrentSolution.Projects.FirstOrDefault(o => o.Name == repositoryName);
+                              portableProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == dataModelProjectName);
+                              mainProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == mainProjectName);
+                              var mainProjectWithReference = mainProject.AddProjectReference(new ProjectReference(portableProject.Id));
+                              var mainProjectWithOtherReference = mainProjectWithReference.AddProjectReference(new ProjectReference(project.Id));
+                              if (ApplyChanges(mainProjectWithOtherReference.Solution))
+                                  Send(p, 85, " - References added successfully", Color.Green);
+                              else
+                                  Send(p, 85, " - Can't add the reference, you must add it manually after process end", Color.Red);
+
+                              // INSTALL NUGET PACKAGE
+                              Send(p, 90, " - Installing Entity Framework NuGet package on '" + mainProjectName + "'");
+
+                              for (int i = 1; i <= dteProjects.Count; i++)
+                              {
+                                  if (dteProjects.Item(i).Name == mainProjectName)
+                                      dteProject = dteProjects.Item(i);
+                              }
+
+                              string packageID = "EntityFramework";
+
+                              IPackageRepository repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+
+                              var componentModel = (IComponentModel)ServiceProvider.GetService(typeof(SComponentModel));
+                              IVsPackageInstaller pckInstaller = componentModel.GetService<IVsPackageInstaller>();
+
+                              List<IPackage> package = repo.FindPackagesById(packageID).ToList();
+                              var lastVersion = package.Where(o => o.IsLatestVersion).Select(o => o.Version).FirstOrDefault();
+
+                              try
+                              {
+                                  pckInstaller.InstallPackage(_onlineNugetPackageLocation, dteProject, packageID, lastVersion.Version, false);
+                                  Send(p, 90, " - " + packageID + " " + lastVersion.Version + " installed", Color.Green);
+                              }
+                              catch (Exception)
+                              {
+                                  Send(p, 100, " - Error on installing " + packageID + " " + lastVersion.Version, Color.Red);
+                              }
 
                               Send(p, 100, " - REPOSITORY PATTERN SUCCESSFULLY GENERATED", Color.Green);
                           }
