@@ -28,5 +28,16 @@ namespace RepositoryPatternGenerator.Helpers
             var identity = metaData.ChildNodes.Cast<XmlElement>().First(x => x.Name == "Identity");
             return identity.GetAttribute(attribute);
         }
+
+        public static string ReplaceLastOccurrence(string Source, string Find, string Replace)
+        {
+            int place = Source.LastIndexOf(Find, StringComparison.Ordinal);
+
+            if (place == -1)
+                return Source;
+
+            string result = Source.Remove(place, Find.Length).Insert(place, Replace);
+            return result;
+        }
     }
 }

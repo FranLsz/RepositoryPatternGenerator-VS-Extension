@@ -52,6 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CodeSnippets\CodeSnippets.cs" />
+    <Compile Include="CodeSnippets\CodeSnippetsV2.cs" />
     <Compile Include="MainCommand\MainCommand.cs" />
     <Compile Include="MainCommand\MainCommandPackage.cs" />
     <Compile Include="MainDialog\MainDialog.cs">
