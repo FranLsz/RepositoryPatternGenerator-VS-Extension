@@ -436,7 +436,7 @@ namespace RepositoryPatternGenerator.MainDialog
                               var modelsDocument = documents.Where(d => d.Folders.Contains(edmxFolderName));
                               Project portableProject = null;
                               Project mainProject = null;
-                              Send(p, 75, " - Trying to generate Adapters and ViewModels from Models");
+                              Send(p, 75, " - Trying to generate Adapters and Models from Entities");
 
                               var mainProjectName =
                                   CurrentSolution.Projects.FirstOrDefault(
@@ -494,9 +494,9 @@ namespace RepositoryPatternGenerator.MainDialog
 
                                       RefreshCurrentSolution();
                                       portableProject = CurrentSolution.Projects.FirstOrDefault(o => o.Name == dataModelProjectName);
-                                      var vm = portableProject.AddDocument(modelName + "ViewModel", portableCode, new[] { dataModelProjectName, "ViewModel" });
+                                      var vm = portableProject.AddDocument(modelName + "Model", portableCode, new[] { dataModelProjectName, "ViewModel" });
                                       ApplyChanges(vm.Project.Solution);
-                                      Send(p, 75, $" - {modelName}ViewModel generated", Color.Green);
+                                      Send(p, 75, $" - {modelName}Model generated", Color.Green);
 
                                   }
                               }

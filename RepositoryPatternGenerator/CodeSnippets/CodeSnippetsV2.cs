@@ -29,9 +29,9 @@ using " + RepositoryName + @".Model;
 using " + RepositoryName + @".Repository;
 using " + ViewModelsProjectName + @".ViewModel;
 
-namespace " + RepositoryName + @".Repository
+namespace " + MainProjectName + @".Repository
 {
-    public class " + modelName + @"Repository : EntityFrameworkRepository<" + modelName + @", " + modelName + @"ViewModel, " + modelName + @"Adapter>
+    public class " + modelName + @"Repository : EntityFrameworkRepository<" + modelName + @", " + modelName + @"Model, " + modelName + @"Adapter>
     {
         public " + modelName + @"Repository(DbContext context) : base(context) { }
     }
@@ -50,7 +50,7 @@ using System;
 
 namespace " + ViewModelsProjectName + @".ViewModel
 {
-    public class " + modelName + @"ViewModel
+    public class " + modelName + @"Model
     {
 " + props + @"
     }
@@ -70,9 +70,9 @@ using " + ViewModelsProjectName + @".ViewModel;
 
 namespace " + RepositoryName + @".Adapter
 {
-    public class " + modelName + @"Adapter : Adapter<" + modelName + @", " + modelName + @"ViewModel>
+    public class " + modelName + @"Adapter : Adapter<" + modelName + @", " + modelName + @"Model>
     {
-        public override " + modelName + @" FromViewModel(" + modelName + @"ViewModel model)
+        public override " + modelName + @" FromViewModel(" + modelName + @"Model model)
         {
             return new " + modelName + @"()
             {
@@ -80,9 +80,9 @@ namespace " + RepositoryName + @".Adapter
             };
         }
 
-        public override " + modelName + @"ViewModel FromModel(" + modelName + @" model)
+        public override " + modelName + @"Model FromModel(" + modelName + @" model)
         {
-            return new " + modelName + @"ViewModel()
+            return new " + modelName + @"Model()
             {
 " + fromProps + @"
             };
@@ -100,12 +100,12 @@ using System.Collections.Generic;
 
 namespace " + RepositoryName + @".Adapter
 {
-    public interface IAdapter<TModel, TViewModel>
+    public interface IAdapter<TEntity, TModel>
     {
-        TModel FromViewModel(TViewModel model);
-        TViewModel FromModel(TModel model);
-        ICollection<TModel> FromViewModel(ICollection<TViewModel> model);
-        ICollection<TViewModel> FromModel(ICollection<TModel> model);
+        TEntity FromViewModel(TModel model);
+        TModel FromModel(TEntity model);
+        ICollection<TEntity> FromViewModel(ICollection<TModel> model);
+        ICollection<TModel> FromModel(ICollection<TEntity> model);
     }
 }";
         }
@@ -117,17 +117,17 @@ using System.Linq;
 
 namespace " + RepositoryName + @".Adapter
 {
-    public abstract class Adapter<TModel, TViewModel> : IAdapter<TModel, TViewModel>
+    public abstract class Adapter<TEntity, TModel> : IAdapter<TEntity, TModel>
     {
-        public abstract TModel FromViewModel(TViewModel model);
-        public abstract TViewModel FromModel(TModel model);
+        public abstract TEntity FromViewModel(TModel model);
+        public abstract TModel FromModel(TEntity model);
 
-        public ICollection<TModel> FromViewModel(ICollection<TViewModel> model)
+        public ICollection<TEntity> FromViewModel(ICollection<TModel> model)
         {
             return model.Select(FromViewModel).ToList();
         }
 
-        public ICollection<TViewModel> FromModel(ICollection<TModel> model)
+        public ICollection<TModel> FromModel(ICollection<TEntity> model)
         {
             return model.Select(FromModel).ToList();
         }
@@ -144,16 +144,16 @@ using System.Linq.Expressions;
 
 namespace " + RepositoryName + @".Repository
 {
-    public interface IRepository<TModel, TViewModel, TAdapter>
+    public interface IRepository<TEntity, TModel, TAdapter>
     {
-        ICollection<TViewModel> Get();
-        TViewModel Get(params object[] keys);
-        ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where);
-        TViewModel Add(TViewModel model);
-        int Update(TViewModel model);
+        ICollection<TModel> Get();
+        TModel Get(params object[] keys);
+        ICollection<TModel> Get(Expression<Func<TEntity, bool>> where);
+        TModel Add(TModel model);
+        int Update(TModel model);
         int Delete(params object[] keys);
-        int Delete(TViewModel model);
-        int Delete(Expression<Func<TModel, bool>> where);
+        int Delete(TModel model);
+        int Delete(Expression<Func<TEntity, bool>> where);
     }
 }";
         }
@@ -170,14 +170,14 @@ using " + RepositoryName + @".Adapter;
 
 namespace " + RepositoryName + @".Repository
 {
-    public class EntityFrameworkRepository<TModel, TViewModel, TAdapter> : IRepository<TModel, TViewModel, TAdapter>
-        where TAdapter : IAdapter<TModel, TViewModel>, new()
+    public class EntityFrameworkRepository<TEntity, TModel, TAdapter> : IRepository<TEntity, TModel, TAdapter>
+        where TAdapter : IAdapter<TEntity, TModel>, new()
+        where TEntity : class
         where TModel : class
-        where TViewModel : class
     {
         protected DbContext Context;
 
-        protected DbSet<TModel> DbSet => Context.Set<TModel>();
+        protected DbSet<TEntity> DbSet => Context.Set<TEntity>();
 
         public TAdapter Adapter
         {
@@ -195,24 +195,24 @@ namespace " + RepositoryName + @".Repository
             Context = context;
         }
 
-        public virtual ICollection<TViewModel> Get()
+        public virtual ICollection<TModel> Get()
         {
             return Adapter.FromModel(DbSet.ToList());
         }
 
-        public virtual TViewModel Get(params object[] keys)
+        public virtual TModel Get(params object[] keys)
         {
             var data = DbSet.Find(keys);
             return Adapter.FromModel(data);
         }
 
-        public virtual ICollection<TViewModel> Get(Expression<Func<TModel, bool>> where)
+        public virtual ICollection<TModel> Get(Expression<Func<TEntity, bool>> where)
         {
             var data = DbSet.Where(where);
             return Adapter.FromModel(data.ToList());
         }
 
-        public virtual TViewModel Add(TViewModel model)
+        public virtual TModel Add(TModel model)
         {
             var data = Adapter.FromViewModel(model);
             DbSet.Add(data);
@@ -227,7 +227,7 @@ namespace " + RepositoryName + @".Repository
             }
         }
 
-        public virtual int Update(TViewModel model)
+        public virtual int Update(TModel model)
         {
             var data = Adapter.FromViewModel(model);
             Context.Entry(data).State = EntityState.Modified;
@@ -255,7 +255,7 @@ namespace " + RepositoryName + @".Repository
             }
         }
 
-        public virtual int Delete(TViewModel model)
+        public virtual int Delete(TModel model)
         {
             var data = Adapter.FromViewModel(model);
             Context.Entry(data).State = EntityState.Deleted;
@@ -269,7 +269,7 @@ namespace " + RepositoryName + @".Repository
             }
         }
 
-        public virtual int Delete(Expression<Func<TModel, bool>> where)
+        public virtual int Delete(Expression<Func<TEntity, bool>> where)
         {
             var data = DbSet.Where(where);
             DbSet.RemoveRange(data);
